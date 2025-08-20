@@ -250,11 +250,10 @@ server {
 Si vous découvrez une vulnérabilité de sécurité, veuillez :
 
 1. **NE PAS** créer d'issue publique
-2. Envoyer un email à : security@kitchencraft.com
+2. Envoyer un email à : security@kitchencraft.app
 3. Inclure une description détaillée
 4. Fournir des étapes de reproduction si possible
 
-Nous nous engageons à répondre dans les 48h et à publier un patch dans les 7 jours pour les vulnérabilités critiques.
 
 ## 📚 Ressources Sécurité
 

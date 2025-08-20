@@ -100,7 +100,7 @@ Entités principales :
 
 ### 1. Clonage du Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/Kaiju-31/KitchenCraft.git
 cd KitchenCraft
 ```
 
@@ -459,6 +459,6 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 
 ---
 
-**Made with ❤️ by [Your Name]**
+**Made with ❤️ by Kaiju-31**
 
-Pour plus d'informations, consultez la [documentation complète](docs/) ou ouvrez une [issue](https://github.com/your-repo/issues).
+Pour plus d'informations, consultez la [documentation complète](docs/) ou ouvrez une [issue](https://github.com/Kaiju-31/KitchenCraft/issues).

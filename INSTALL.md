@@ -16,7 +16,7 @@ docker --version  # Docker (optionnel)
 ### 2. Clonage et Setup Initial
 ```bash
 # Cloner le repository
-git clone <repository-url>
+git clone https://github.com/Kaiju-31/KitchenCraft.git
 cd KitchenCraft
 
 # Copier les configurations
@@ -246,8 +246,8 @@ cd frontend && npm install && npm run dev
 
 - 📖 **Documentation** : Voir [README.md](README.md)
 - 🔒 **Sécurité** : Voir [SECURITY.md](SECURITY.md)  
-- 🐛 **Issues** : [GitHub Issues](https://github.com/your-repo/issues)
-- 💬 **Discussions** : [GitHub Discussions](https://github.com/your-repo/discussions)
+- 🐛 **Issues** : [GitHub Issues](https://github.com/Kaiju-31/KitchenCraft/issues)
+- 💬 **Discussions** : [GitHub Discussions](https://github.com/Kaiju-31/KitchenCraft/discussions)
 
 ---
 
