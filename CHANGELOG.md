@@ -5,6 +5,18 @@ All notable changes to KitchenCraft will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-08-20
+
+### Fixed
+- **Recipe Creation Bug**: Correction de la validation des types de recettes
+  - Le backend acceptait uniquement les valeurs en anglais (APPETIZER, STARTER, MAIN, etc.)
+  - Le frontend envoyait les valeurs en français ("Plat principal", "Entrée", etc.)
+  - Alignement de la validation Pattern pour accepter les valeurs françaises
+  - Résolution de l'erreur HTTP 400 lors de la création de recettes
+
+### Changed
+- Pattern de validation dans `RecipeRequest.java` : support des types de recettes en français
+
 ## [1.0.0] - 2025-08-20
 
 ### Added
