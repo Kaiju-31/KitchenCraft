@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+body {
+    @apply bg-gray-50 text-gray-900;
+}
+
+/* Animations personnalisées */
+@keyframes animate-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-in {
+    animation: animate-in 0.7s ease-out;
+}
+
+/* Styles pour les sliders de range */
+.range-slider {
+    background: transparent;
+}
+
+.range-slider::-webkit-slider-track {
+    background: transparent;
+    height: 100%;
+    border: none;
+    cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb {
+    appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    border: 3px solid white;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    transform: scale(1.15);
+}
+
+.range-slider::-webkit-slider-thumb:active {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+/* Firefox styles */
+.range-slider::-moz-range-track {
+    background: transparent;
+    height: 100%;
+    border: none;
+    cursor: pointer;
+}
+
+.range-slider::-moz-range-thumb {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+.range-slider::-moz-range-thumb:hover {
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.range-slider::-moz-range-thumb:active {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+/* Focus styles pour l'accessibilité */
+.range-slider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+.range-slider:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
