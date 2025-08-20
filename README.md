@@ -4,11 +4,17 @@
 
 KitchenCraft est une application full-stack développée avec Spring Boot et React, conçue pour simplifier la gestion de vos recettes, ingrédients et plannings de repas. L'application met l'accent sur les performances, la sécurité et l'expérience utilisateur.
 
+> ⚠️ **Development Status**: This project is under active development. 
+> Authentication and production-ready security features are planned for upcoming releases.
+> Please see [SECURITY.md](SECURITY.md) before considering any deployment.
+
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)
 ![React](https://img.shields.io/badge/React-19-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Development](https://img.shields.io/badge/status-development-orange.svg)
+![Not Production Ready](https://img.shields.io/badge/production-not%20ready-red.svg)
 
 ## 🌟 Fonctionnalités Principales
 
