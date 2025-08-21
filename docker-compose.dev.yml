@@ -1,0 +1,141 @@
+# 🍳 KitchenCraft - Docker Compose Development Configuration
+# Development environment with hot reload for both frontend and backend
+
+version: '3.8'
+
+services:
+  # 🗃️ PostgreSQL Database (same as production)
+  postgres:
+    image: postgres:16-alpine
+    container_name: kitchencraft-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kitchencraft
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./docker/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - kitchencraft-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kitchencraft"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ☕ Spring Boot Backend with hot reload
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev.alternative
+    image: kitchencraft-backend:dev
+    container_name: kitchencraft-backend-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      # - "5005:5005"  # Debug port for IDE (disabled for now)
+    environment:
+      # Database connection
+      DB_HOST: postgres
+      DB_NAME: kitchencraft
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_URL: jdbc:postgresql://postgres:5432/kitchencraft
+      
+      # Spring configuration
+      SPRING_PROFILES_ACTIVE: dev
+      
+      # Enable debugging (commented out for now)
+      # JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      
+      # Dev optimizations
+      SPRING_DEVTOOLS_RESTART_ENABLED: true
+      SPRING_DEVTOOLS_LIVERELOAD_ENABLED: true
+      
+      # JVM tuning for dev
+      JVM_OPTS: -Xmx1g -Xms512m
+      
+      # Logging
+      LOG_LEVEL_ROOT: INFO
+      LOG_LEVEL_APP: DEBUG
+    volumes:
+      # Mount source code for hot reload
+      - ./backend/src:/app/src:ro
+      - ./backend/pom.xml:/app/pom.xml:ro
+      # Comment out target volume for JAR approach
+      # - maven_target:/app/target
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - kitchencraft-dev-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/recipes"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ⚛️ React Frontend with Vite hot reload
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    image: kitchencraft-frontend:dev
+    container_name: kitchencraft-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "5173:5173"  # Vite dev server
+    environment:
+      # Docker environment detection
+      DOCKER_ENV: "true"
+      
+      # Vite configuration
+      VITE_API_URL: http://localhost:8080
+      VITE_DEV_SERVER_HOST: 0.0.0.0
+      VITE_DEV_SERVER_PORT: 5173
+      
+      # Hot reload configuration
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/package.json:/app/package.json:ro
+      - ./frontend/package-lock.json:/app/package-lock.json:ro
+      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
+      - ./frontend/tsconfig.json:/app/tsconfig.json:ro
+      - ./frontend/tsconfig.node.json:/app/tsconfig.node.json:ro
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js:ro
+      - ./frontend/eslint.config.js:/app/eslint.config.js:ro
+      # Exclude node_modules from host
+      - /app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - kitchencraft-dev-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+# 🌐 Networks
+networks:
+  kitchencraft-dev-network:
+    driver: bridge
+    name: kitchencraft-dev-network
+
+# 💾 Volumes  
+volumes:
+  postgres_dev_data:
+    name: kitchencraft-postgres-dev-data
+  maven_target:
+    name: kitchencraft-maven-target

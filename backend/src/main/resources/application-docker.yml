@@ -1,0 +1,42 @@
+# KitchenCraft - Docker Profile Configuration
+# This profile is activated when SPRING_PROFILES_ACTIVE=docker
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/kitchencraft}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        
+  # Actuator for health checks
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info
+    endpoint:
+      health:
+        show-details: when-authorized
+
+# Logging configuration
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.kitchencraft: ${LOG_LEVEL_APP:DEBUG}
+    org.springframework.web: INFO
+    org.hibernate.SQL: ${LOG_LEVEL_SQL:WARN}
+    
+# Server configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /

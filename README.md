@@ -42,6 +42,12 @@ KitchenCraft est une application full-stack développée avec Spring Boot et Rea
 - **Recherche optimisée** : URLs sémantiques et cache prédictif
 - **Interface responsive** : Adaptation mobile, tablette et desktop
 - **Lazy loading** : Chargement à la demande des composants
+
+### 🐳 Déploiement Docker
+- **Multi-environnements** : Production optimisée + Développement avec hot reload
+- **Images multi-stage** : Backend Spring Boot + Frontend React/Nginx
+- **Health checks automatiques** : Monitoring de l'état des services
+- **Détection d'environnement** : Configuration automatique Local/Docker
 - **Monitoring intégré** : Suivi des performances en développement
 
 ## 🏗️ Architecture Technique
@@ -408,14 +414,17 @@ export CACHE_HMAC_KEY=secure_hmac_key
 java -jar backend/target/backend-0.0.1-SNAPSHOT.jar
 ```
 
-### Docker (Roadmap)
+### Docker
 ```bash
-# Build images
-docker build -t kitchencraft-backend ./backend
-docker build -t kitchencraft-frontend ./frontend
+# Production (optimisé)
+docker-compose up -d
 
-# Docker Compose complet
-docker-compose -f docker-compose.prod.yml up -d
+# Développement (hot reload)
+docker-compose -f docker-compose.dev.yml up -d
+
+# Build manuel si nécessaire
+docker build -t kitchencraft-backend:prod ./backend
+docker build -t kitchencraft-frontend:prod ./frontend
 ```
 
 ## 🤝 Contribution
@@ -445,23 +454,29 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 
 ## 🎯 Roadmap
 
-### Version 1.1
-- [ ] Authentification JWT
-- [ ] Tests automatisés complets
-- [ ] Service Worker pour mode offline
-- [ ] Notifications push
+### ✅ Version 1.1 (Actuelle)
+- [x] **Support Docker complet** : Production + Développement
+- [x] **Hot reload environment** : Frontend React + Backend Spring Boot
+- [x] **Multi-environment support** : Détection automatique Local/Docker
+- [x] **Container optimization** : Multi-stage builds, health checks
 
 ### Version 1.2
-- [ ] API GraphQL
-- [ ] Mode collaboratif
-- [ ] Import/Export de recettes
-- [ ] Intégration calendrier
+- [ ] **Authentification JWT** : Spring Security + tokens
+- [ ] **Tests automatisés complets** : Unit + Integration + E2E
+- [ ] **Service Worker** : Mode offline et cache intelligent
+- [ ] **Notifications push** : Rappels et alertes
+
+### Version 1.3
+- [ ] **API GraphQL** : Alternative REST plus flexible
+- [ ] **Mode collaboratif** : Partage de recettes entre utilisateurs
+- [ ] **Import/Export** : Formats standards (JSON, PDF)
+- [ ] **Intégration calendrier** : Synchronisation événements
 
 ### Version 2.0
-- [ ] Application mobile (React Native)
-- [ ] IA pour suggestions de recettes
-- [ ] Reconnaissance d'images
-- [ ] Analyse nutritionnelle
+- [ ] **Application mobile** : React Native cross-platform
+- [ ] **IA suggestions** : Recommandations personnalisées
+- [ ] **Reconnaissance d'images** : Scan automatique ingrédients
+- [ ] **Analyse nutritionnelle** : Calculs détaillés et conseils
 
 ---
 

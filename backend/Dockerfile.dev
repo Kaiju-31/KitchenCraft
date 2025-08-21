@@ -1,0 +1,37 @@
+# 🍳 KitchenCraft Backend Development Dockerfile
+# Hot reload enabled with Spring Boot DevTools
+
+FROM eclipse-temurin:21-jdk-alpine
+
+WORKDIR /app
+
+# Install curl for health checks and Maven
+RUN apk --no-cache add curl maven
+
+# Copy Maven configuration first for better layer caching
+COPY pom.xml .
+
+# Download dependencies (will be cached if pom.xml doesn't change)
+RUN mvn dependency:go-offline -B
+
+# Copy source code (will be overridden by volumes in dev)
+COPY . .
+
+# Create non-root user for security
+RUN addgroup -S kitchencraft && adduser -S -G kitchencraft kitchencraft
+RUN chown -R kitchencraft:kitchencraft /app
+
+# Ensure target directory exists and has correct permissions
+RUN mkdir -p /app/target && chown -R kitchencraft:kitchencraft /app/target
+
+USER kitchencraft
+
+# Expose application and debug ports
+EXPOSE 8080 5005
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/api/recipes || exit 1
+
+# Start Spring Boot with DevTools in development mode
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.fork=false"]

@@ -32,7 +32,7 @@ export default function RecipeForm({
   const [formData, setFormData] = useState({
     name: recipe?.name || '',
     description: recipe?.description || '',
-    type: recipe?.type || 'PLAT',
+    type: recipe?.type || 'Entrée',
     preparationTime: recipe?.preparationTime || 30,
     cookingTime: recipe?.cookingTime || 0,
     restTime: recipe?.restTime || 0,

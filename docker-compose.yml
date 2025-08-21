@@ -1,16 +1,99 @@
+# 🍳 KitchenCraft - Docker Compose Configuration
+# Full-stack application with PostgreSQL, Spring Boot Backend, and React Frontend
+
 version: '3.8'
+
 services:
+  # 🗃️ PostgreSQL Database
   postgres:
-    image: postgres:16
-    container_name: kitchencraft_db
+    image: postgres:16-alpine
+    container_name: kitchencraft-db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: kitchencraft
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - kitchencraft-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kitchencraft"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # ☕ Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kitchencraft-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Database connection
+      DB_HOST: postgres
+      DB_NAME: kitchencraft
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_URL: jdbc:postgresql://postgres:5432/kitchencraft
+      
+      # Spring configuration
+      SPRING_PROFILES_ACTIVE: docker
+      
+      # JVM tuning
+      JVM_OPTS: -Xmx512m -Xms256m
+      
+      # Logging
+      LOG_LEVEL_ROOT: INFO
+      LOG_LEVEL_APP: DEBUG
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - kitchencraft-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/recipes"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ⚛️ React Frontend + Nginx
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kitchencraft-frontend
+    environment:
+      DOCKER_ENV: "true"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - kitchencraft-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+# 🌐 Networks
+networks:
+  kitchencraft-network:
+    driver: bridge
+    name: kitchencraft-network
+
+# 💾 Volumes  
 volumes:
-  pgdata:
+  postgres_data:
+    name: kitchencraft-postgres-data

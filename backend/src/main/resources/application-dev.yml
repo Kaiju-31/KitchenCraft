@@ -1,0 +1,58 @@
+# Configuration spécifique pour l'environnement de développement
+spring:
+  # Configuration de la base de données
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/kitchencraft}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  
+  # Configuration JPA/Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    format-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  
+  # DevTools configuration for hot reload
+  devtools:
+    restart:
+      enabled: true
+      exclude: static/**,public/**
+    livereload:
+      enabled: true
+      port: 35729
+    remote:
+      restart:
+        enabled: true
+
+# Configuration de logging pour le développement
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.kitchencraft: ${LOG_LEVEL_APP:DEBUG}
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %5level %logger{36} - %msg%n"
+
+# Configuration du serveur
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# Désactiver la sécurité Actuator en dev (optionnel)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

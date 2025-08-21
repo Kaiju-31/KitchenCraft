@@ -5,6 +5,63 @@ All notable changes to KitchenCraft will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-08-21
+
+### Added
+
+#### 🐳 Docker Support Complet
+- **Production Environment** : Images multi-stage optimisées avec Alpine Linux
+  - Backend : Eclipse Temurin 21 + Spring Boot JAR (~316MB)
+  - Frontend : React build + Nginx reverse proxy
+  - PostgreSQL 16 avec volumes persistants et health checks
+  - Configuration complète via `docker-compose.yml`
+
+- **Development Environment** : Environnement containerisé avec hot reload
+  - Hot reload frontend (Vite) : modifications instantanées < 1s
+  - Hot reload backend (Spring Boot DevTools) : redémarrage automatique ~5s
+  - Debug port exposé (5005) pour connexion IDE
+  - Configuration séparée via `docker-compose.dev.yml`
+
+- **Multi-Environment Detection** : Configuration adaptative automatique
+  - Détection Local vs Docker via variable `DOCKER_ENV`
+  - Proxy API intelligent dans `vite.config.ts`
+  - Plus besoin de modification manuelle entre environnements
+
+#### 📁 Nouveaux Fichiers
+- `docker-compose.yml` : Stack production optimisée
+- `docker-compose.dev.yml` : Stack développement avec hot reload
+- `backend/Dockerfile` : Image production multi-stage
+- `backend/Dockerfile.dev.alternative` : Image développement alternative
+- `frontend/Dockerfile` : Image production React + Nginx
+- `frontend/Dockerfile.dev` : Image développement avec Vite
+- `backend/src/main/resources/application-dev.yml` : Configuration Spring Boot dev
+- `README-DEV.md` : Guide complet environnement de développement
+
+#### 🛠️ Améliorations Techniques
+- **Images taguées** : `:dev` et `:prod` pour éviter les conflits
+- **Utilisateurs non-root** : Sécurité renforcée dans tous les conteneurs
+- **Health checks automatiques** : Monitoring PostgreSQL, Backend, Frontend
+- **Volumes intelligents** : Synchronisation optimisée du code source
+- **Polling activé** : Compatibilité Windows pour file watching
+
+### Fixed
+- **Configuration PostCSS/Tailwind** : Résolution conflit CSS v4 avec Vite
+- **Validation types recettes** : Alignement valeurs françaises frontend/backend
+- **Permissions Docker Windows** : Correction erreurs volumes avec Maven target
+- **Proxy configuration** : Détection automatique hostname backend/localhost
+
+### Changed
+- **Roadmap réorganisée** : Docker déplacé de "Roadmap" vers fonctionnalités disponibles
+- **Semantic versioning** : v1.2.0+ pour JWT/Tests, v1.1.0 pour Docker
+- **Documentation déploiement** : Instructions mises à jour avec commandes Docker
+- **Dépendances backend** : Ajout `spring-boot-devtools` pour hot reload
+
+### Technical Details
+- **3 environnements supportés** : Local natif, Docker production, Docker développement
+- **Auto-détection environnement** : Variable `DOCKER_ENV` pour configuration automatique  
+- **Performance optimisée** : Images Alpine, builds multi-stage, caching intelligent
+- **Développement streamliné** : Hot reload complet, debug intégré, monitoring temps réel
+
 ## [1.0.1] - 2025-08-20
 
 ### Fixed
