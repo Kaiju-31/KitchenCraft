@@ -4,6 +4,20 @@ Guide pour utiliser la stack de développement Docker avec hot reload.
 
 ## ⚡ Démarrage Rapide
 
+### Configuration des variables d'environnement
+```bash
+# Copier et configurer les variables backend
+cp backend/.env.example backend/.env
+
+# Copier et configurer les variables frontend  
+cp frontend/.env.example frontend/.env.local
+
+# IMPORTANT: Créer le fichier .env racine pour Docker Compose
+echo "DB_PASSWORD=$(grep DB_PASSWORD backend/.env | cut -d'=' -f2)" > .env
+
+# Modifier les mots de passe et clés selon vos besoins
+```
+
 ### Lancer l'environnement de développement
 ```bash
 # Démarrer la stack complète avec hot reload
@@ -74,13 +88,31 @@ volumes:
 
 ## 📝 Variables d'Environnement
 
-Créer un fichier `.env` à la racine du projet :
+### Backend (.env)
 ```env
-# Base de données
-DB_PASSWORD=your_password_here
+# Configuration base de données
+DB_URL=jdbc:postgresql://localhost:5432/kitchencraft
+DB_USERNAME=postgres
+DB_PASSWORD=kitchencraft_2025_SecurePass!
 
-# Développement
-NODE_ENV=development
+# Configuration logging
+LOG_LEVEL_ROOT=INFO
+LOG_LEVEL_APP=DEBUG
+```
+
+### Frontend (.env.local)
+```env
+# Configuration sécurité (OBLIGATOIRE)
+VITE_CACHE_HMAC_KEY=KitchenCraft2025_SecureHMAC_Key_32chars_Change_This!
+VITE_CACHE_ENCRYPTION_ENABLED=false
+
+# Configuration logging
+VITE_LOG_LEVEL=info
+VITE_LOG_CONSOLE_ENABLED=true
+
+# Error reporting
+VITE_ERROR_REPORTING_ENABLED=false
+VITE_APP_VERSION=1.1.0
 ```
 
 ## 🔍 Monitoring & Logs
@@ -115,7 +147,8 @@ docker-compose -f docker-compose.dev.yml logs -f backend
 ### Erreurs de connexion base de données
 1. **Ordre de démarrage** : Attendre que PostgreSQL soit "healthy"
 2. **Variables d'environnement** : Vérifier `DB_*` dans docker-compose.dev.yml
-3. **Réseau** : Tous les services dans `kitchencraft-dev-network`
+3. **Fichier .env racine** : Vérifier qu'il existe avec `DB_PASSWORD=same_as_backend_env`
+4. **Réseau** : Tous les services dans `kitchencraft-dev-network`
 
 ## 🆚 Différences avec Production
 

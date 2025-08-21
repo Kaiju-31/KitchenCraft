@@ -1,5 +1,9 @@
 # 🍳 KitchenCraft - Docker Compose Configuration
 # Full-stack application with PostgreSQL, Spring Boot Backend, and React Frontend
+#
+# IMPORTANT: Ce fichier nécessite un fichier .env à la racine du projet contenant:
+# DB_PASSWORD=your_secure_password
+# Ce mot de passe doit correspondre à celui dans backend/.env
 
 version: '3.8'
 
@@ -9,10 +13,12 @@ services:
     image: postgres:16-alpine
     container_name: kitchencraft-db
     restart: unless-stopped
+    env_file:
+      - backend/.env
     environment:
       POSTGRES_DB: kitchencraft
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -33,14 +39,14 @@ services:
       dockerfile: Dockerfile
     container_name: kitchencraft-backend
     restart: unless-stopped
+    env_file:
+      - backend/.env
     ports:
       - "8080:8080"
     environment:
-      # Database connection
+      # Docker-specific overrides
       DB_HOST: postgres
       DB_NAME: kitchencraft
-      DB_USERNAME: postgres
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_URL: jdbc:postgresql://postgres:5432/kitchencraft
       
       # Spring configuration
@@ -48,10 +54,6 @@ services:
       
       # JVM tuning
       JVM_OPTS: -Xmx512m -Xms256m
-      
-      # Logging
-      LOG_LEVEL_ROOT: INFO
-      LOG_LEVEL_APP: DEBUG
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,6 +72,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: kitchencraft-frontend
+    env_file:
+      - frontend/.env.local
     environment:
       DOCKER_ENV: "true"
     restart: unless-stopped

@@ -8,7 +8,7 @@ KitchenCraft est une application full-stack développée avec Spring Boot et Rea
 > Authentication and production-ready security features are planned for upcoming releases.
 > Please see [SECURITY.md](SECURITY.md) before considering any deployment.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)
 ![React](https://img.shields.io/badge/React-19-blue.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
@@ -124,21 +124,31 @@ cd KitchenCraft
 docker-compose up -d
 ```
 
+> **Note** : Pour Docker, un fichier `.env` à la racine du projet est requis (voir étape 3).
+
 #### Option B : Installation Manuelle
 ```bash
 # Créer la base de données
 createdb kitchencraft
 ```
 
-### 3. Configuration Backend
+### 3. Configuration des Variables d'Environnement
 
-#### Variables d'Environnement
+#### Backend
 ```bash
 # Copier le fichier exemple
 cp backend/.env.example backend/.env
 
 # Éditer les variables selon votre environnement
 nano backend/.env
+```
+
+#### Docker (Production/Développement)
+```bash
+# Créer le fichier .env racine avec le même mot de passe que backend/.env
+echo "DB_PASSWORD=votre_mot_de_passe_secure" > .env
+
+# Le mot de passe doit correspondre à celui dans backend/.env
 ```
 
 #### Configuration Application
@@ -151,14 +161,11 @@ nano backend/src/main/resources/application.yml
 ```
 
 #### Variables Principales
-```yaml
+```env
 # Base de données
 DB_URL=jdbc:postgresql://localhost:5432/kitchencraft
 DB_USERNAME=postgres
-DB_PASSWORD=votre_mot_de_passe_sécurisé
-
-# Profil Spring (dev/prod)
-SPRING_PROFILES_ACTIVE=dev
+DB_PASSWORD=kitchencraft_2025_SecurePass!
 
 # Logging
 LOG_LEVEL_ROOT=INFO
@@ -176,17 +183,17 @@ nano frontend/.env.local
 ```
 
 #### Variables Principales
-```bash
-# API Backend
-VITE_API_BASE_URL=http://localhost:8080/api
-
-# Cache et Performance
-VITE_CACHE_ENABLED=true
-VITE_CACHE_HMAC_KEY=votre_clé_hmac_sécurisée_32_caractères_minimum
+```env
+# Sécurité cache (OBLIGATOIRE)
+VITE_CACHE_HMAC_KEY=KitchenCraft2025_SecureHMAC_Key_32chars_Change_This!
 
 # Logging
 VITE_LOG_LEVEL=info
-VITE_DEBUG_CACHE_MONITOR=true
+VITE_LOG_CONSOLE_ENABLED=true
+
+# Error reporting
+VITE_ERROR_REPORTING_ENABLED=false
+VITE_APP_VERSION=1.1.0
 ```
 
 ### 5. Démarrage de l'Application
@@ -415,6 +422,16 @@ java -jar backend/target/backend-0.0.1-SNAPSHOT.jar
 ```
 
 ### Docker
+
+#### Prérequis
+```bash
+# IMPORTANT: Créer d'abord le fichier .env racine
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env.local
+echo "DB_PASSWORD=$(grep DB_PASSWORD backend/.env | cut -d'=' -f2)" > .env
+```
+
+#### Commandes Docker
 ```bash
 # Production (optimisé)
 docker-compose up -d

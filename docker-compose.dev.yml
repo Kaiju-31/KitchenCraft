@@ -1,5 +1,9 @@
 # 🍳 KitchenCraft - Docker Compose Development Configuration
 # Development environment with hot reload for both frontend and backend
+#
+# IMPORTANT: Ce fichier nécessite un fichier .env à la racine du projet contenant:
+# DB_PASSWORD=your_secure_password
+# Ce mot de passe doit correspondre à celui dans backend/.env
 
 version: '3.8'
 
@@ -9,10 +13,12 @@ services:
     image: postgres:16-alpine
     container_name: kitchencraft-db-dev
     restart: unless-stopped
+    env_file:
+      - backend/.env
     environment:
       POSTGRES_DB: kitchencraft
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -34,22 +40,19 @@ services:
     image: kitchencraft-backend:dev
     container_name: kitchencraft-backend-dev
     restart: unless-stopped
+    env_file:
+      - backend/.env
     ports:
       - "8080:8080"
       # - "5005:5005"  # Debug port for IDE (disabled for now)
     environment:
-      # Database connection
+      # Docker-specific overrides
       DB_HOST: postgres
       DB_NAME: kitchencraft
-      DB_USERNAME: postgres
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_URL: jdbc:postgresql://postgres:5432/kitchencraft
       
       # Spring configuration
       SPRING_PROFILES_ACTIVE: dev
-      
-      # Enable debugging (commented out for now)
-      # JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       
       # Dev optimizations
       SPRING_DEVTOOLS_RESTART_ENABLED: true
@@ -57,10 +60,6 @@ services:
       
       # JVM tuning for dev
       JVM_OPTS: -Xmx1g -Xms512m
-      
-      # Logging
-      LOG_LEVEL_ROOT: INFO
-      LOG_LEVEL_APP: DEBUG
     volumes:
       # Mount source code for hot reload
       - ./backend/src:/app/src:ro
@@ -87,6 +86,8 @@ services:
     image: kitchencraft-frontend:dev
     container_name: kitchencraft-frontend-dev
     restart: unless-stopped
+    env_file:
+      - frontend/.env.local
     ports:
       - "5173:5173"  # Vite dev server
     environment:
