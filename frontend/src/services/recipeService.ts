@@ -1,4 +1,5 @@
 import type { Recipe, RecipeRequest, ApiError } from '../types';
+import { csrfService } from './csrfService';
 
 const API_BASE_URL = '/api';
 
@@ -59,30 +60,41 @@ class RecipeService {
   }
 
   async createRecipe(data: RecipeRequest): Promise<Recipe> {
+    const csrfHeaders = await csrfService.getHeaders();
     const response = await fetch(`${API_BASE_URL}/recipes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...csrfHeaders,
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
     return this.handleResponse<Recipe>(response);
   }
 
   async updateRecipe(id: number, data: RecipeRequest): Promise<Recipe> {
+    const csrfHeaders = await csrfService.getHeaders();
     const response = await fetch(`${API_BASE_URL}/recipes/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        ...csrfHeaders,
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
     return this.handleResponse<Recipe>(response);
   }
 
   async deleteRecipe(id: number): Promise<void> {
+    const csrfHeaders = await csrfService.getHeaders();
     const response = await fetch(`${API_BASE_URL}/recipes/${id}`, {
       method: 'DELETE',
+      headers: {
+        ...csrfHeaders,
+      },
+      credentials: 'include',
     });
     
     if (!response.ok) {
