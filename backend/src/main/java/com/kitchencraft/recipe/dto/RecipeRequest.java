@@ -17,7 +17,7 @@ public class RecipeRequest {
     private String name;
     
     @NotBlank(message = "Le type de recette est obligatoire")
-    @Pattern(regexp = "Plat principal|Entrée|Dessert|Apéritif",
+    @Pattern(regexp = "Plat principal|Entrée|Dessert|Collation",
              message = "Type de recette invalide")
     private String type;
     

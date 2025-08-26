@@ -18,6 +18,16 @@ echo "DB_PASSWORD=$(grep DB_PASSWORD backend/.env | cut -d'=' -f2)" > .env
 # Modifier les mots de passe et clés selon vos besoins
 ```
 
+### Configuration Authentification JWT
+```bash
+# Ajouter les variables JWT au backend/.env
+echo "JWT_SECRET=$(openssl rand -base64 64)" >> backend/.env
+echo "JWT_EXPIRATION=86400000" >> backend/.env
+
+# Initialiser le premier utilisateur admin après démarrage
+node init-admin.js
+```
+
 ### Lancer l'environnement de développement
 ```bash
 # Démarrer la stack complète avec hot reload
@@ -95,6 +105,10 @@ DB_URL=jdbc:postgresql://localhost:5432/kitchencraft
 DB_USERNAME=postgres
 DB_PASSWORD=kitchencraft_2025_SecurePass!
 
+# Configuration JWT (OBLIGATOIRE pour l'authentification)
+JWT_SECRET=your-super-secure-jwt-secret-key-64-characters-minimum-generated-securely
+JWT_EXPIRATION=86400000
+
 # Configuration logging
 LOG_LEVEL_ROOT=INFO
 LOG_LEVEL_APP=DEBUG
@@ -112,7 +126,7 @@ VITE_LOG_CONSOLE_ENABLED=true
 
 # Error reporting
 VITE_ERROR_REPORTING_ENABLED=false
-VITE_APP_VERSION=1.1.0
+VITE_APP_VERSION=1.2.0
 ```
 
 ## 🔍 Monitoring & Logs
@@ -127,10 +141,16 @@ docker-compose -f docker-compose.dev.yml logs -f frontend
 docker-compose -f docker-compose.dev.yml logs -f backend
 ```
 
-### Health Checks
-- **Backend** : http://localhost:8080/api/recipes
+### Health Checks et Accès
 - **Frontend** : http://localhost:5173
+- **Backend API** : http://localhost:8080/api
+- **Admin Interface** : http://localhost:5173/admin (nécessite connexion admin)
 - **Database** : `pg_isready` automatique
+
+### Comptes par Défaut (Développement)
+Après exécution de `node init-admin.js` :
+- **Admin** : `admin` / `admin123` (à changer après première connexion)
+- **Test User** : Utiliser l'inscription sur /signup
 
 ## 🚨 Résolution de Problèmes
 
@@ -176,4 +196,46 @@ docker-compose -f docker-compose.dev.yml exec frontend sh
 
 # Nettoyer les volumes de développement
 docker-compose -f docker-compose.dev.yml down -v
+```
+
+## 🔐 Développement avec Authentification
+
+### Tests Automatisés Admin
+```bash
+# Lancer la suite de tests complète
+npm run test:admin
+
+# Ou utiliser les scripts batch/shell
+./run-tests.sh    # Linux/Mac
+run-tests.bat     # Windows
+
+# Tests manuels via curl/fetch
+node test-admin-endpoints.js
+```
+
+### Workflows de Développement Auth
+
+#### Test Interface Admin
+1. Connexion avec compte admin (`admin/admin123`)
+2. Accéder à `/admin` - Dashboard avec statistiques
+3. Tester `/admin/users` - Gestion utilisateurs
+4. Vérifier promotion/rétrogradation rôles
+5. Tester suppression utilisateurs
+
+#### Test Authentification
+1. S'inscrire comme utilisateur normal sur `/signup`
+2. Se connecter sur `/login` 
+3. Vérifier accès restreint aux pages admin
+4. Tester modification profil sur `/profile`
+
+### Debugging Auth Issues
+```bash
+# Vérifier JWT tokens en development
+# Les tokens sont visibles dans localStorage du navigateur
+
+# Logs d'authentification backend
+docker-compose -f docker-compose.dev.yml logs -f backend | grep JWT
+
+# Vérifier les rôles en base
+docker-compose -f docker-compose.dev.yml exec db psql -U postgres -d kitchencraft -c "SELECT u.username, r.name FROM users u JOIN user_roles ur ON u.id = ur.user_id JOIN roles r ON ur.role_id = r.id;"
 ```

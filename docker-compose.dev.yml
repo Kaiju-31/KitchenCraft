@@ -72,7 +72,7 @@ services:
     networks:
       - kitchencraft-dev-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/recipes"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3

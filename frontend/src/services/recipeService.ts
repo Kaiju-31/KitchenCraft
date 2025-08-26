@@ -1,5 +1,5 @@
 import type { Recipe, RecipeRequest, ApiError } from '../types';
-import { csrfService } from './csrfService';
+import { authService } from './authService';
 
 const API_BASE_URL = '/api';
 
@@ -16,12 +16,20 @@ class RecipeService {
     return response.json();
   }
 
+  private getAuthenticatedFetchOptions(): RequestInit {
+    return {
+      headers: {
+        ...authService.getAuthHeaders(),
+      },
+    };
+  }
+
   async getAllRecipes(scaledPerson?: number): Promise<Recipe[]> {
     const url = scaledPerson 
       ? `${API_BASE_URL}/recipes?scaledPerson=${scaledPerson}`
       : `${API_BASE_URL}/recipes`;
     
-    const response = await fetch(url);
+    const response = await fetch(url, this.getAuthenticatedFetchOptions());
     return this.handleResponse<Recipe[]>(response);
   }
 
@@ -30,7 +38,7 @@ class RecipeService {
       ? `${API_BASE_URL}/recipes/${id}?scaledPerson=${scaledPerson}`
       : `${API_BASE_URL}/recipes/${id}`;
     
-    const response = await fetch(url);
+    const response = await fetch(url, this.getAuthenticatedFetchOptions());
     return this.handleResponse<Recipe>(response);
   }
 
@@ -40,7 +48,7 @@ class RecipeService {
       params.append('scaledPerson', scaledPerson.toString());
     }
 
-    const response = await fetch(`${API_BASE_URL}/recipes/by-name?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/recipes/by-name?${params.toString()}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<Recipe[]>(response);
   }
 
@@ -50,7 +58,7 @@ class RecipeService {
       params.append('scaledPerson', scaledPerson.toString());
     }
 
-    const response = await fetch(`${API_BASE_URL}/recipes/by-ingredients?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/recipes/by-ingredients?${params.toString()}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<Recipe[]>(response);
   }
 
@@ -60,41 +68,35 @@ class RecipeService {
   }
 
   async createRecipe(data: RecipeRequest): Promise<Recipe> {
-    const csrfHeaders = await csrfService.getHeaders();
     const response = await fetch(`${API_BASE_URL}/recipes`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...csrfHeaders,
+        ...authService.getAuthHeaders(),
       },
-      credentials: 'include',
       body: JSON.stringify(data),
     });
     return this.handleResponse<Recipe>(response);
   }
 
   async updateRecipe(id: number, data: RecipeRequest): Promise<Recipe> {
-    const csrfHeaders = await csrfService.getHeaders();
     const response = await fetch(`${API_BASE_URL}/recipes/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        ...csrfHeaders,
+        ...authService.getAuthHeaders(),
       },
-      credentials: 'include',
       body: JSON.stringify(data),
     });
     return this.handleResponse<Recipe>(response);
   }
 
   async deleteRecipe(id: number): Promise<void> {
-    const csrfHeaders = await csrfService.getHeaders();
     const response = await fetch(`${API_BASE_URL}/recipes/${id}`, {
       method: 'DELETE',
       headers: {
-        ...csrfHeaders,
+        ...authService.getAuthHeaders(),
       },
-      credentials: 'include',
     });
     
     if (!response.ok) {
@@ -108,7 +110,7 @@ class RecipeService {
   }
 
   async getRecipeCount(): Promise<number> {
-    const response = await fetch(`${API_BASE_URL}/recipes/count`);
+    const response = await fetch(`${API_BASE_URL}/recipes/count`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<number>(response);
   }
 
@@ -118,7 +120,7 @@ class RecipeService {
       limit: limit.toString()
     });
 
-    const response = await fetch(`${API_BASE_URL}/recipes/autocomplete?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/recipes/autocomplete?${params.toString()}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
 
@@ -128,7 +130,7 @@ class RecipeService {
       fromPlans: fromPlans.toString()
     });
 
-    const response = await fetch(`${API_BASE_URL}/recipes/popular?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/recipes/popular?${params.toString()}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
 
@@ -138,7 +140,7 @@ class RecipeService {
       limit: limit.toString()
     });
 
-    const response = await fetch(`${API_BASE_URL}/recipes/search-prefix?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/recipes/search-prefix?${params.toString()}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
 
@@ -148,7 +150,7 @@ class RecipeService {
       limit: limit.toString()
     });
 
-    const response = await fetch(`${API_BASE_URL}/recipes/search-contains?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/recipes/search-contains?${params.toString()}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
 
@@ -195,12 +197,12 @@ class RecipeService {
       params.append('scaledPerson', scaledPerson.toString());
     }
 
-    const response = await fetch(`${API_BASE_URL}/recipes/filter?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/recipes/filter?${params.toString()}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<Recipe[]>(response);
   }
 
   async getAllOrigins(): Promise<string[]> {
-    const response = await fetch(`${API_BASE_URL}/recipes/origins`);
+    const response = await fetch(`${API_BASE_URL}/recipes/origins`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
 }

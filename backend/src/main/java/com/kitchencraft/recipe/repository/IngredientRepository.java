@@ -31,4 +31,28 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
     """)
     List<String> findIngredientNamesWithCategory(@Param("search") String search, Pageable pageable);
 
+    // Catégorie la plus utilisée
+    @Query("""
+        SELECT i.category
+        FROM Ingredient i
+        GROUP BY i.category
+        ORDER BY COUNT(i) DESC
+        LIMIT 1
+    """)
+    Optional<String> findMostUsedCategory();
+
+    // Ingrédients orphelins (non utilisés dans aucune recette)
+    @Query("""
+        SELECT i.name
+        FROM Ingredient i
+        WHERE i.id NOT IN (
+            SELECT DISTINCT ri.ingredient.id
+            FROM RecipeIngredient ri
+        )
+    """)
+    List<String> findOrphanIngredients();
+
+    // Supprimer par nom
+    void deleteByName(String name);
+
 }

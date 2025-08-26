@@ -6,13 +6,17 @@ import type {
     ShoppingListItem,
     ShoppingListItemRequest
 } from '../types';
-import { csrfService } from './csrfService';
+import { authService } from './authService';
 
 const API_BASE_URL = '/api/plans';
 
 // Plans
 export const getAllPlans = async (): Promise<WeeklyPlan[]> => {
-  const response = await fetch(API_BASE_URL);
+  const response = await fetch(API_BASE_URL, {
+    headers: {
+      ...authService.getAuthHeaders(),
+    },
+  });
   if (!response.ok) {
     throw new Error('Erreur lors de la récupération des plannings');
   }
@@ -20,7 +24,11 @@ export const getAllPlans = async (): Promise<WeeklyPlan[]> => {
 };
 
 export const getPlanById = async (id: number): Promise<WeeklyPlan> => {
-  const response = await fetch(`${API_BASE_URL}/${id}`);
+  const response = await fetch(`${API_BASE_URL}/${id}`, {
+    headers: {
+      ...authService.getAuthHeaders(),
+    },
+  });
   if (!response.ok) {
     throw new Error(`Erreur lors de la récupération du planning ${id}`);
   }
@@ -28,14 +36,12 @@ export const getPlanById = async (id: number): Promise<WeeklyPlan> => {
 };
 
 export const createPlan = async (plan: WeeklyPlanRequest): Promise<WeeklyPlan> => {
-  const csrfHeaders = await csrfService.getHeaders();
   const response = await fetch(API_BASE_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...csrfHeaders,
+      ...authService.getAuthHeaders(),
     },
-    credentials: 'include',
     body: JSON.stringify(plan),
   });
   if (!response.ok) {
@@ -45,14 +51,12 @@ export const createPlan = async (plan: WeeklyPlanRequest): Promise<WeeklyPlan> =
 };
 
 export const updatePlan = async (id: number, plan: WeeklyPlanRequest): Promise<WeeklyPlan> => {
-  const csrfHeaders = await csrfService.getHeaders();
   const response = await fetch(`${API_BASE_URL}/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      ...csrfHeaders,
+      ...authService.getAuthHeaders(),
     },
-    credentials: 'include',
     body: JSON.stringify(plan),
   });
   if (!response.ok) {
@@ -62,13 +66,11 @@ export const updatePlan = async (id: number, plan: WeeklyPlanRequest): Promise<W
 };
 
 export const deletePlan = async (id: number): Promise<void> => {
-  const csrfHeaders = await csrfService.getHeaders();
   const response = await fetch(`${API_BASE_URL}/${id}`, {
     method: 'DELETE',
     headers: {
-      ...csrfHeaders,
+      ...authService.getAuthHeaders(),
     },
-    credentials: 'include',
   });
   if (!response.ok) {
     throw new Error('Erreur lors de la suppression du planning');
@@ -76,13 +78,11 @@ export const deletePlan = async (id: number): Promise<void> => {
 };
 
 export const copyPlan = async (id: number, newStartDate: string): Promise<WeeklyPlan> => {
-  const csrfHeaders = await csrfService.getHeaders();
   const response = await fetch(`${API_BASE_URL}/${id}/copy?newStartDate=${newStartDate}`, {
     method: 'POST',
     headers: {
-      ...csrfHeaders,
+      ...authService.getAuthHeaders(),
     },
-    credentials: 'include',
   });
   if (!response.ok) {
     throw new Error('Erreur lors de la copie du planning');
@@ -92,14 +92,12 @@ export const copyPlan = async (id: number, newStartDate: string): Promise<Weekly
 
 // Recettes du planning
 export const addRecipeToPlan = async (planId: number, recipe: PlanRecipeRequest): Promise<PlanRecipe> => {
-  const csrfHeaders = await csrfService.getHeaders();
   const response = await fetch(`${API_BASE_URL}/${planId}/recipes`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...csrfHeaders,
+      ...authService.getAuthHeaders(),
     },
-    credentials: 'include',
     body: JSON.stringify(recipe),
   });
   if (!response.ok) {
@@ -109,7 +107,11 @@ export const addRecipeToPlan = async (planId: number, recipe: PlanRecipeRequest)
 };
 
 export const getPlanRecipes = async (planId: number): Promise<PlanRecipe[]> => {
-  const response = await fetch(`${API_BASE_URL}/${planId}/recipes`);
+  const response = await fetch(`${API_BASE_URL}/${planId}/recipes`, {
+    headers: {
+      ...authService.getAuthHeaders(),
+    },
+  });
   if (!response.ok) {
     throw new Error('Erreur lors de la récupération des recettes du planning');
   }
@@ -117,13 +119,11 @@ export const getPlanRecipes = async (planId: number): Promise<PlanRecipe[]> => {
 };
 
 export const removeRecipeFromPlan = async (planRecipeId: number): Promise<void> => {
-  const csrfHeaders = await csrfService.getHeaders();
   const response = await fetch(`${API_BASE_URL}/recipes/${planRecipeId}`, {
     method: 'DELETE',
     headers: {
-      ...csrfHeaders,
+      ...authService.getAuthHeaders(),
     },
-    credentials: 'include',
   });
   if (!response.ok) {
     throw new Error('Erreur lors de la suppression de la recette du planning');
@@ -132,13 +132,11 @@ export const removeRecipeFromPlan = async (planRecipeId: number): Promise<void> 
 
 // Liste de courses
 export const generateShoppingList = async (planId: number): Promise<ShoppingListItem[]> => {
-  const csrfHeaders = await csrfService.getHeaders();
   const response = await fetch(`${API_BASE_URL}/${planId}/shopping-list/generate`, {
     method: 'POST',
     headers: {
-      ...csrfHeaders,
+      ...authService.getAuthHeaders(),
     },
-    credentials: 'include',
   });
   if (!response.ok) {
     throw new Error('Erreur lors de la génération de la liste de courses');
@@ -147,7 +145,11 @@ export const generateShoppingList = async (planId: number): Promise<ShoppingList
 };
 
 export const getShoppingList = async (planId: number): Promise<ShoppingListItem[]> => {
-  const response = await fetch(`${API_BASE_URL}/${planId}/shopping-list`);
+  const response = await fetch(`${API_BASE_URL}/${planId}/shopping-list`, {
+    headers: {
+      ...authService.getAuthHeaders(),
+    },
+  });
   if (!response.ok) {
     throw new Error('Erreur lors de la récupération de la liste de courses');
   }
@@ -158,14 +160,12 @@ export const updateShoppingListItem = async (
   itemId: number, 
   update: ShoppingListItemRequest
 ): Promise<ShoppingListItem> => {
-  const csrfHeaders = await csrfService.getHeaders();
   const response = await fetch(`${API_BASE_URL}/shopping-list/items/${itemId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      ...csrfHeaders,
+      ...authService.getAuthHeaders(),
     },
-    credentials: 'include',
     body: JSON.stringify(update),
   });
   if (!response.ok) {

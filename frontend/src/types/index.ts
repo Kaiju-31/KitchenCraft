@@ -123,7 +123,7 @@ export const RECIPE_TYPES: Category[] = [
   { value: 'Entrée', label: 'Entrée', color: 'from-emerald-500 to-teal-600' },
   { value: 'Plat principal', label: 'Plat principal', color: 'from-orange-500 to-red-600' },
   { value: 'Dessert', label: 'Dessert', color: 'from-pink-500 to-purple-600' },
-  { value: 'Apéritif', label: 'Apéritif', color: 'from-yellow-500 to-orange-600' }
+  { value: 'Collation', label: 'Collation', color: 'from-yellow-500 to-orange-600' }
 ];
 
 // Types pour les modes d'affichage

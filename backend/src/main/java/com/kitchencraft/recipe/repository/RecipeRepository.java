@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
@@ -98,5 +99,16 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     // Obtenir toutes les origines distinctes
     @Query("SELECT DISTINCT r.origin FROM Recipe r WHERE r.origin IS NOT NULL ORDER BY r.origin")
     List<String> findAllDistinctOrigins();
+
+    // Origine la plus populaire
+    @Query("""
+        SELECT r.origin
+        FROM Recipe r
+        WHERE r.origin IS NOT NULL
+        GROUP BY r.origin
+        ORDER BY COUNT(r) DESC
+        LIMIT 1
+    """)
+    Optional<String> findMostPopularOrigin();
 
 }

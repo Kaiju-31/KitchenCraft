@@ -1,11 +1,35 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { ChefHat, Search, BookOpen, Leaf, Calendar } from "lucide-react";
+import { ChefHat, Search, BookOpen, Leaf, Calendar, User, LogOut, Settings } from "lucide-react";
 import CacheMonitor from "../components/performance/CacheMonitor";
+import { useAuth } from "../contexts/AuthContext";
+import { useState, useEffect } from "react";
+import { adminService } from "../services/adminService";
 
 export default function Layout() {
     const location = useLocation();
+    const { user, logout } = useAuth();
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const isActive = (path) => location.pathname === path;
+
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            if (user) {
+                try {
+                    await adminService.testAdminAccess();
+                    setIsAdmin(true);
+                } catch {
+                    setIsAdmin(false);
+                }
+            }
+        };
+
+        checkAdminStatus();
+    }, [user]);
+
+    const handleLogout = () => {
+        logout();
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -72,6 +96,92 @@ export default function Layout() {
                                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                             )}
                         </Link>
+
+                        {/* User Menu */}
+                        <div className="hidden sm:flex items-center space-x-2 ml-4 border-l border-white/20 pl-4">
+                            {user && (
+                                <>
+                                    <Link
+                                        to="/profile"
+                                        className={`group relative flex items-center justify-center lg:justify-start lg:space-x-2 px-2 sm:px-3 lg:px-4 xl:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-300 text-sm sm:text-base ${
+                                            isActive('/profile')
+                                                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25'
+                                                : 'text-slate-700 hover:text-blue-600 hover:bg-white/50 hover:shadow-lg'
+                                        }`}
+                                    >
+                                        <User className="w-4 h-4 sm:w-5 sm:h-5 xl:w-6 xl:h-6" />
+                                        <span className="hidden lg:inline xl:text-lg ml-2">Profil</span>
+                                        {!isActive('/profile') && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                                        )}
+                                    </Link>
+
+                                    {isAdmin && (
+                                        <Link
+                                            to="/admin"
+                                            className={`group relative flex items-center justify-center lg:justify-start lg:space-x-2 px-2 sm:px-3 lg:px-4 xl:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-300 text-sm sm:text-base ${
+                                                location.pathname.startsWith('/admin')
+                                                    ? 'bg-gradient-to-r from-red-500 to-orange-600 text-white shadow-lg shadow-red-500/25'
+                                                    : 'text-slate-700 hover:text-red-600 hover:bg-white/50 hover:shadow-lg'
+                                            }`}
+                                        >
+                                            <Settings className="w-4 h-4 sm:w-5 sm:h-5 xl:w-6 xl:h-6" />
+                                            <span className="hidden lg:inline xl:text-lg ml-2">Admin</span>
+                                            {!location.pathname.startsWith('/admin') && (
+                                                <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-600 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                                            )}
+                                        </Link>
+                                    )}
+
+                                    <button
+                                        onClick={handleLogout}
+                                        className="group relative flex items-center justify-center lg:justify-start lg:space-x-2 px-2 sm:px-3 lg:px-4 xl:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-300 text-sm sm:text-base text-slate-700 hover:text-red-600 hover:bg-white/50 hover:shadow-lg"
+                                    >
+                                        <LogOut className="w-4 h-4 sm:w-5 sm:h-5 xl:w-6 xl:h-6" />
+                                        <span className="hidden lg:inline xl:text-lg ml-2">Déconnexion</span>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                                    </button>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Mobile User Menu */}
+                        <div className="sm:hidden flex items-center space-x-1 ml-2 border-l border-white/20 pl-2">
+                            {user && (
+                                <>
+                                    <Link
+                                        to="/profile"
+                                        className={`group relative flex items-center justify-center p-2 rounded-xl font-medium transition-all duration-300 ${
+                                            isActive('/profile')
+                                                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25'
+                                                : 'text-slate-700 hover:text-blue-600 hover:bg-white/50 hover:shadow-lg'
+                                        }`}
+                                    >
+                                        <User className="w-5 h-5" />
+                                    </Link>
+
+                                    {isAdmin && (
+                                        <Link
+                                            to="/admin"
+                                            className={`group relative flex items-center justify-center p-2 rounded-xl font-medium transition-all duration-300 ${
+                                                location.pathname.startsWith('/admin')
+                                                    ? 'bg-gradient-to-r from-red-500 to-orange-600 text-white shadow-lg shadow-red-500/25'
+                                                    : 'text-slate-700 hover:text-red-600 hover:bg-white/50 hover:shadow-lg'
+                                            }`}
+                                        >
+                                            <Settings className="w-5 h-5" />
+                                        </Link>
+                                    )}
+
+                                    <button
+                                        onClick={handleLogout}
+                                        className="group relative flex items-center justify-center p-2 rounded-xl font-medium transition-all duration-300 text-slate-700 hover:text-red-600 hover:bg-white/50 hover:shadow-lg"
+                                    >
+                                        <LogOut className="w-5 h-5" />
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </nav>
             </header>

@@ -1,0 +1,40 @@
+{
+  "name": "kitchencraft-tests",
+  "version": "1.0.0",
+  "description": "Scripts de test automatisés pour KitchenCraft",
+  "main": "test-automation.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test-automation.js",
+    "test:watch": "nodemon test-automation.js",
+    "test:verbose": "DEBUG=true node test-automation.js",
+    "test:clean": "node cleanup-test-data.js",
+    "test:full": "npm run test:clean && npm run test",
+    "init:admin": "node init-admin.js",
+    "test:admin": "node test-admin-endpoints.js"
+  },
+  "keywords": [
+    "test",
+    "automation",
+    "kitchencraft"
+  ],
+  "author": "KitchenCraft Team",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kaiju-31/KitchenCraft.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kaiju-31/KitchenCraft/issues"
+  },
+  "homepage": "https://github.com/Kaiju-31/KitchenCraft#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}

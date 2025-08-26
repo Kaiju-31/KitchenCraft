@@ -1,5 +1,5 @@
 import type { Ingredient, IngredientRequest, ApiError } from '../types';
-import { csrfService } from './csrfService';
+import { authService } from './authService';
 
 const API_BASE_URL = '/api';
 
@@ -16,47 +16,49 @@ class IngredientService {
     return response.json();
   }
 
+  private getAuthenticatedFetchOptions(): RequestInit {
+    return {
+      headers: {
+        ...authService.getAuthHeaders(),
+      },
+    };
+  }
+
   async getAllIngredients(): Promise<Ingredient[]> {
-    const response = await fetch(`${API_BASE_URL}/ingredients`);
+    const response = await fetch(`${API_BASE_URL}/ingredients`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<Ingredient[]>(response);
   }
 
   async createIngredient(data: IngredientRequest): Promise<Ingredient> {
-    const csrfHeaders = await csrfService.getHeaders();
     const response = await fetch(`${API_BASE_URL}/ingredients`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...csrfHeaders,
+        ...authService.getAuthHeaders(),
       },
-      credentials: 'include',
       body: JSON.stringify(data),
     });
     return this.handleResponse<Ingredient>(response);
   }
 
   async updateIngredient(id: number, data: IngredientRequest): Promise<Ingredient> {
-    const csrfHeaders = await csrfService.getHeaders();
     const response = await fetch(`${API_BASE_URL}/ingredients/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        ...csrfHeaders,
+        ...authService.getAuthHeaders(),
       },
-      credentials: 'include',
       body: JSON.stringify(data),
     });
     return this.handleResponse<Ingredient>(response);
   }
 
   async deleteIngredient(id: number): Promise<void> {
-    const csrfHeaders = await csrfService.getHeaders();
     const response = await fetch(`${API_BASE_URL}/ingredients/${id}`, {
       method: 'DELETE',
       headers: {
-        ...csrfHeaders,
+        ...authService.getAuthHeaders(),
       },
-      credentials: 'include',
     });
     
     if (!response.ok) {
@@ -70,12 +72,12 @@ class IngredientService {
   }
 
   async getIngredientByName(name: string): Promise<Ingredient> {
-    const response = await fetch(`${API_BASE_URL}/ingredients/by-name?name=${encodeURIComponent(name)}`);
+    const response = await fetch(`${API_BASE_URL}/ingredients/by-name?name=${encodeURIComponent(name)}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<Ingredient>(response);
   }
 
   async getAutocomplete(query: string, limit: number = 10): Promise<string[]> {
-    const response = await fetch(`${API_BASE_URL}/ingredients/autocomplete?q=${encodeURIComponent(query)}&limit=${limit}`);
+    const response = await fetch(`${API_BASE_URL}/ingredients/autocomplete?q=${encodeURIComponent(query)}&limit=${limit}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
 
@@ -85,17 +87,17 @@ class IngredientService {
       fromPlans: fromPlans.toString()
     });
     
-    const response = await fetch(`${API_BASE_URL}/ingredients/popular?${params.toString()}`);
+    const response = await fetch(`${API_BASE_URL}/ingredients/popular?${params.toString()}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
 
   async searchByPrefix(query: string, limit: number = 10): Promise<string[]> {
-    const response = await fetch(`${API_BASE_URL}/ingredients/search-prefix?q=${encodeURIComponent(query)}&limit=${limit}`);
+    const response = await fetch(`${API_BASE_URL}/ingredients/search-prefix?q=${encodeURIComponent(query)}&limit=${limit}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
 
   async searchContaining(query: string, limit: number = 10): Promise<string[]> {
-    const response = await fetch(`${API_BASE_URL}/ingredients/search-contains?q=${encodeURIComponent(query)}&limit=${limit}`);
+    const response = await fetch(`${API_BASE_URL}/ingredients/search-contains?q=${encodeURIComponent(query)}&limit=${limit}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
 }
