@@ -3,6 +3,7 @@ import type { Ingredient, IngredientRequest } from '../../types';
 import { INGREDIENT_CATEGORIES } from '../../types';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
+import useKeyboard from '../../hooks/useKeyboard';
 
 interface IngredientFormProps {
   ingredient?: Ingredient;
@@ -37,6 +38,13 @@ export default function IngredientForm({
     }
   }, [ingredient]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Raccourcis clavier pour le formulaire
+  useKeyboard({
+    onEnter: () => !isSubmitting && handleSubmit(new Event('submit') as any),
+    onEscape: () => !isSubmitting && handleClose(),
+    enabled: isOpen
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

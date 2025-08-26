@@ -7,6 +7,7 @@ import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import IngredientAutocomplete from './IngredientAutocomplete';
 import NewIngredientModal from './NewIngredientModal';
+import useKeyboard from '../../hooks/useKeyboard';
 
 interface RecipeFormProps {
   recipe?: Recipe;
@@ -65,6 +66,12 @@ export default function RecipeForm({
   const [showNewIngredientModal, setShowNewIngredientModal] = useState(false);
   const [newIngredientName, setNewIngredientName] = useState('');
   const [pendingIngredientName, setPendingIngredientName] = useState('');
+
+  // Raccourcis clavier globaux pour le formulaire
+  useKeyboard({
+    onEscape: onCancel,
+    enabled: !showIngredientModal && !showNewIngredientModal && editingIngredientIndex === null
+  });
 
   const addIngredient = () => {
     if (!selectedIngredient || !ingredientQuantity.trim() || !ingredientUnit.trim()) return;

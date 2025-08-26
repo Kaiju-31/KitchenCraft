@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Check, AlertCircle, Info, X } from 'lucide-react';
+import useKeyboard from '../../hooks/useKeyboard';
 
 interface NotificationProps {
   isVisible: boolean;
@@ -18,6 +19,12 @@ export default function Notification({
   type = 'success',
   duration = 3000
 }: NotificationProps) {
+  // Raccourci clavier : Esc pour fermer la notification
+  useKeyboard({
+    onEscape: onClose,
+    enabled: isVisible
+  });
+
   useEffect(() => {
     if (isVisible && duration > 0) {
       const timer = setTimeout(onClose, duration);

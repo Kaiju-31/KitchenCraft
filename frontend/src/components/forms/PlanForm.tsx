@@ -3,6 +3,7 @@ import { Calendar, Plus, X } from 'lucide-react';
 import type {WeeklyPlanRequest} from '../../types';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
+import useKeyboard from '../../hooks/useKeyboard';
 
 interface PlanFormProps {
   isOpen: boolean;
@@ -27,6 +28,13 @@ export default function PlanForm({
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Raccourcis clavier pour le formulaire
+  useKeyboard({
+    onEnter: () => !isSubmitting && handleSubmit(new Event('submit') as any),
+    onEscape: () => !isSubmitting && onClose(),
+    enabled: isOpen
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

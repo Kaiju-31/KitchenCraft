@@ -4,6 +4,7 @@ import type { Ingredient, IngredientRequest } from '../../types';
 import { ingredientService } from '../../services/ingredientService';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
+import useKeyboard from '../../hooks/useKeyboard';
 
 interface NewIngredientModalProps {
   isOpen: boolean;
@@ -31,6 +32,13 @@ export default function NewIngredientModal({
       setCategory('');
     }
   }, [isOpen, initialName]);
+
+  // Raccourcis clavier pour le formulaire
+  useKeyboard({
+    onEnter: () => !isCreating && handleSubmit(new Event('submit') as any),
+    onEscape: () => !isCreating && onClose(),
+    enabled: isOpen
+  });
 
   // Générer un ID temporaire négatif unique
   const generateTempId = () => {

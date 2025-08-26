@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import useKeyboard from '../../hooks/useKeyboard';
 
 interface ModalProps {
   isOpen: boolean;
@@ -15,6 +16,12 @@ export default function Modal({
   children,
   maxWidth = 'md'
 }: ModalProps) {
+  // Raccourci clavier : Esc pour fermer la modal
+  useKeyboard({
+    onEscape: onClose,
+    enabled: isOpen
+  });
+
   if (!isOpen) return null;
 
   const maxWidthClasses = {

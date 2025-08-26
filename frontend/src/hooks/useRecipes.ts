@@ -15,6 +15,7 @@ const initialFilters: RecipeFilters = {
 
 export function useRecipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
   const [filters, setFilters] = useState<RecipeFilters>(initialFilters);
 
   const {
@@ -197,6 +198,23 @@ export function useRecipes() {
     await loadRecipes();
   }, [loadRecipes]);
 
+  // Filtrage automatique des recettes basé sur le searchTerm
+  useEffect(() => {
+    let filtered = recipes;
+
+    // Filtrage par recherche (nom de recette seulement pour le filtrage local)
+    if (filters.searchTerm.trim()) {
+      filtered = filtered.filter(recipe =>
+        recipe.name.toLowerCase().includes(filters.searchTerm.toLowerCase().trim())
+      );
+    }
+
+    // Maintenir l'ordre alphabétique après filtrage
+    filtered = filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+    setFilteredRecipes(filtered);
+  }, [recipes, filters.searchTerm]);
+
   // Charger les données au montage
   useEffect(() => {
     loadRecipes();
@@ -207,6 +225,7 @@ export function useRecipes() {
 
   return {
     recipes,
+    filteredRecipes,
     filters,
     setFilters,
     loading,

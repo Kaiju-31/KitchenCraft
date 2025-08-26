@@ -20,6 +20,7 @@ import { usePredictiveCache } from '../hooks/usePredictiveCache';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import EmptyState from '../components/ui/EmptyState';
 import Button from '../components/ui/Button';
+import SearchBar from '../components/ui/SearchBar';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import RecipeCard from '../components/recipe/RecipeCard';
 import RecipeDetail from '../components/recipe/RecipeDetail';
@@ -60,6 +61,7 @@ export default function Recipes() {
 
   const {
     recipes,
+    filteredRecipes,
     filters,
     setFilters,
     loading: recipesLoading,
@@ -294,19 +296,10 @@ export default function Recipes() {
     await loadAllRecipes();
   };
 
-  const handleSearchTermChange = async (value: string) => {
+  const handleSearchTermChange = (value: string) => {
     setFilters({ ...filters, searchTerm: value });
-    
-    // Auto-reset quand le champ se vide ET qu'il n'y a que le searchTerm comme filtre actif
-    if (value.trim() === '' && 
-        filters.selectedIngredients.length === 0 &&
-        !filters.minTime && !filters.maxTime &&
-        filters.selectedOrigins.length === 0 &&
-        filters.isBabyFriendly === undefined) {
-      // Retourner à l'affichage par défaut
-      await loadAllRecipes();
-    }
   };
+
 
   const handleScaledPersonChange = async (person: number) => {
     setScaledPerson(person);
@@ -338,7 +331,7 @@ export default function Recipes() {
   };
 
   // Préparer les données pour la vue liste
-  const recipeItems = recipes.map(recipe => {
+  const recipeItems = filteredRecipes.map(recipe => {
     const description = recipe.description?.length > 45 
       ? recipe.description.substring(0, 45) + '...' 
       : recipe.description;
@@ -541,7 +534,7 @@ export default function Recipes() {
         </p>
         <div className="flex justify-center items-center space-x-4 sm:space-x-8">
           <div className="text-center">
-            <div className="text-lg xs:text-xl sm:text-2xl xl:text-3xl font-bold text-indigo-600">{recipes.length}</div>
+            <div className="text-lg xs:text-xl sm:text-2xl xl:text-3xl font-bold text-indigo-600">{filteredRecipes.length}</div>
             <div className="text-xs sm:text-sm text-slate-500">recettes</div>
           </div>
         </div>
@@ -583,11 +576,9 @@ export default function Recipes() {
       <div className="relative max-w-4xl mx-auto px-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
           <div className="flex-1">
-            <RecipeAutocomplete
+            <SearchBar
               value={filters.searchTerm}
               onChange={handleSearchTermChange}
-              onSearch={searchRecipeAutocomplete}
-              onRecipeSelect={handleRecipeSelect}
               placeholder="Rechercher une recette par nom..."
             />
           </div>
@@ -722,7 +713,7 @@ export default function Recipes() {
 
       {/* Sélecteur de vue et résultats */}
       <div className="max-w-6xl mx-auto px-2 sm:px-4">
-        {recipes.length > 0 && (
+        {filteredRecipes.length > 0 && (
           <div className="flex justify-end mb-6">
             <ViewModeToggle
               viewMode={viewMode}
@@ -731,7 +722,7 @@ export default function Recipes() {
           </div>
         )}
 
-        {recipes.length === 0 ? (
+        {filteredRecipes.length === 0 ? (
           <div className="px-2 xs:px-4">
             <EmptyState
               icon={Search}
@@ -743,7 +734,7 @@ export default function Recipes() {
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 xl:gap-8">
-            {recipes.map((recipe) => (
+            {filteredRecipes.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}

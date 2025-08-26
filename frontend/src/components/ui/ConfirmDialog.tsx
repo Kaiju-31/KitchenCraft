@@ -1,5 +1,6 @@
 import { AlertTriangle, X } from 'lucide-react';
 import Button from './Button';
+import useKeyboard from '../../hooks/useKeyboard';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -24,6 +25,13 @@ export default function ConfirmDialog({
   variant = 'danger',
   disabled = false
 }: ConfirmDialogProps) {
+  // Raccourcis clavier : Enter pour confirmer, Esc pour annuler
+  useKeyboard({
+    onEnter: disabled ? undefined : onConfirm,
+    onEscape: disabled ? undefined : onClose,
+    enabled: isOpen
+  });
+
   if (!isOpen) return null;
 
   const getVariantStyles = () => {

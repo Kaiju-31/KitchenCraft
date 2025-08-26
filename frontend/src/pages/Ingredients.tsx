@@ -65,6 +65,7 @@ export default function Ingredients() {
     setFilters({ ...filters, searchTerm: ingredientName });
   };
 
+
   const getCategoryInfo = (category: string) => {
     return INGREDIENT_CATEGORIES.find(cat => cat.value === category) || INGREDIENT_CATEGORIES[0];
   };
