@@ -11,6 +11,7 @@ import EmptyState from '../components/ui/EmptyState';
 import Button from '../components/ui/Button';
 import RecipeSelector from '../components/planning/RecipeSelector';
 import ShoppingList from '../components/planning/ShoppingList';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 export default function PlanningDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,7 @@ export default function PlanningDetailPage() {
   const [showRecipeSelector, setShowRecipeSelector] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [shoppingMode, setShoppingMode] = useState<'validation' | 'shopping'>('validation');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const {
     plans,
@@ -93,6 +95,10 @@ export default function PlanningDetailPage() {
     }
   };
 
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
   const handleDelete = async () => {
     if (plan) {
       try {
@@ -103,6 +109,7 @@ export default function PlanningDetailPage() {
         alert('Erreur lors de la suppression du planning');
       }
     }
+    setShowDeleteConfirm(false);
   };
 
   const formatDate = (dateString: string) => {
@@ -240,7 +247,7 @@ export default function PlanningDetailPage() {
         </Button>
         <Button
           variant="danger"
-          onClick={handleDelete}
+          onClick={handleDeleteClick}
           className="flex items-center"
         >
           <Trash2 className="w-4 h-4 mr-2" />
@@ -362,6 +369,18 @@ export default function PlanningDetailPage() {
           planId={plan.id}
         />
       )}
+
+      {/* Dialog de confirmation pour suppression de planning */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="Supprimer le planning"
+        message={`Êtes-vous sûr de vouloir supprimer le planning "${plan?.name}" ? Cette action est irréversible et supprimera également tous les repas et recettes associés.`}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        variant="danger"
+      />
     </div>
   );
 }

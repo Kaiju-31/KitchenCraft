@@ -12,12 +12,15 @@ import Button from '../components/ui/Button';
 import PlanForm from '../components/forms/PlanForm';
 import ViewModeToggle from '../components/ui/ViewModeToggle';
 import ItemList from '../components/ui/ItemList';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 export default function Planning() {
   const navigate = useNavigate();
   
   const [viewMode, setViewMode] = useViewMode('viewMode-planning', 'grid');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [planToDelete, setPlanToDelete] = useState<number | null>(null);
 
   const {
     plans,
@@ -62,13 +65,17 @@ export default function Planning() {
     return days;
   };
 
-  const getRecipesForDate = (date: string) => {
-    const recipes = planRecipes.filter(pr => {
-      // Normaliser les dates au format YYYY-MM-DD (enlever l'heure si présente)
-      const recipeDate = pr.plannedDate.split('T')[0];
-      return recipeDate === date;
-    });
-    return recipes;
+  const handleDeletePlan = (planId: number) => {
+    setPlanToDelete(planId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeletePlan = async () => {
+    if (planToDelete) {
+      await deletePlan(planToDelete);
+      setPlanToDelete(null);
+    }
+    setShowDeleteConfirm(false);
   };
 
   const handleExportPlanningPDF = async () => {
@@ -138,7 +145,7 @@ export default function Planning() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              deletePlan(plan.id);
+              handleDeletePlan(plan.id);
             }}
             className="min-w-10 min-h-10 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 touch-manipulation"
             title="Supprimer"
@@ -163,7 +170,7 @@ export default function Planning() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              deletePlan(plan.id);
+              handleDeletePlan(plan.id);
             }}
             className="min-w-10 min-h-10 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 touch-manipulation"
             title="Supprimer"
@@ -198,7 +205,7 @@ export default function Planning() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              deletePlan(plan.id);
+              handleDeletePlan(plan.id);
             }}
             className="min-w-10 min-h-10 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 touch-manipulation"
             title="Supprimer"
@@ -340,7 +347,7 @@ export default function Planning() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          deletePlan(plan.id);
+                          handleDeletePlan(plan.id);
                         }}
                         className="min-w-11 min-h-11 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
                         title="Supprimer"
@@ -363,6 +370,18 @@ export default function Planning() {
         isOpen={showCreateForm}
         onClose={() => setShowCreateForm(false)}
         onSubmit={createPlan}
+      />
+
+      {/* Dialog de confirmation pour suppression de planning */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDeletePlan}
+        title="Supprimer le planning"
+        message="Êtes-vous sûr de vouloir supprimer ce planning ? Cette action est irréversible et supprimera également tous les repas et recettes associés."
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        variant="danger"
       />
 
     </div>

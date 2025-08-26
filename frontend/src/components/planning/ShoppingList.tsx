@@ -3,6 +3,8 @@ import { ChevronDown, ChevronRight, Check, ShoppingCart, AlertCircle } from 'luc
 import type { ShoppingListItem, ShoppingListByCategory } from '../../types';
 import { INGREDIENT_CATEGORIES } from '../../types';
 import Button from '../ui/Button';
+import ConfirmDialog from '../ui/ConfirmDialog';
+import Notification from '../ui/Notification';
 
 interface ShoppingListProps {
   items: ShoppingListItem[];
@@ -13,6 +15,8 @@ interface ShoppingListProps {
 
 export default function ShoppingList({ items, onUpdateItem, mode, onModeChange }: ShoppingListProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [showValidationConfirm, setShowValidationConfirm] = useState(false);
+  const [showValidationNotification, setShowValidationNotification] = useState(false);
 
   const itemsByCategory = useMemo((): ShoppingListByCategory[] => {
     const categoryMap = new Map<string, ShoppingListItem[]>();
@@ -87,6 +91,16 @@ export default function ShoppingList({ items, onUpdateItem, mode, onModeChange }
       })
     );
     await Promise.all(promises);
+    setShowValidationNotification(true);
+  };
+
+  const handleSwitchToShopping = () => {
+    setShowValidationConfirm(true);
+  };
+
+  const confirmSwitchToShopping = () => {
+    setShowValidationConfirm(false);
+    onModeChange('shopping');
   };
 
   const totalStats = useMemo(() => {
@@ -125,7 +139,7 @@ export default function ShoppingList({ items, onUpdateItem, mode, onModeChange }
           </Button>
           <Button
             variant={mode === 'shopping' ? 'primary' : 'ghost'}
-            onClick={() => onModeChange('shopping')}
+            onClick={handleSwitchToShopping}
             size="sm"
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
@@ -287,6 +301,28 @@ export default function ShoppingList({ items, onUpdateItem, mode, onModeChange }
           )}
         </div>
       </div>
+
+      {/* Dialog de confirmation pour passer en mode courses */}
+      <ConfirmDialog
+        isOpen={showValidationConfirm}
+        onClose={() => setShowValidationConfirm(false)}
+        onConfirm={confirmSwitchToShopping}
+        title="Passer en mode courses"
+        message="Êtes-vous sûr de vouloir passer en mode courses ? Les quantités validées seront prises en compte pour calculer les achats nécessaires."
+        confirmText="Passer en mode courses"
+        cancelText="Annuler"
+        variant="info"
+      />
+
+      {/* Notification de validation */}
+      <Notification
+        isVisible={showValidationNotification}
+        onClose={() => setShowValidationNotification(false)}
+        title="Validation terminée"
+        message="Toutes les quantités ont été validées avec succès. Vous pouvez maintenant passer en mode courses."
+        type="success"
+        duration={4000}
+      />
     </div>
   );
 }

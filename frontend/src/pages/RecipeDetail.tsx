@@ -7,6 +7,7 @@ import { useRecipes } from '../hooks/useRecipes';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import EmptyState from '../components/ui/EmptyState';
 import RecipeDetail from '../components/recipe/RecipeDetail';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 import { Search } from 'lucide-react';
 
 export default function RecipeDetailPage() {
@@ -16,6 +17,7 @@ export default function RecipeDetailPage() {
   const [scaledPerson, setScaledPerson] = useState(4);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const { getRecipeById, deleteRecipe } = useRecipes();
 
@@ -84,6 +86,10 @@ export default function RecipeDetailPage() {
     });
   };
 
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
   const handleDelete = async (id: number) => {
     try {
       await deleteRecipe(id);
@@ -92,6 +98,7 @@ export default function RecipeDetailPage() {
       console.error('Erreur lors de la suppression:', error);
       alert('Erreur lors de la suppression de la recette');
     }
+    setShowDeleteConfirm(false);
   };
 
   const handleScaledPersonChange = (person: number) => {
@@ -121,13 +128,27 @@ export default function RecipeDetailPage() {
   }
 
   return (
-    <RecipeDetail
-      recipe={recipe}
-      scaledPerson={scaledPerson}
-      onScaledPersonChange={handleScaledPersonChange}
-      onBack={handleBack}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-    />
+    <>
+      <RecipeDetail
+        recipe={recipe}
+        scaledPerson={scaledPerson}
+        onScaledPersonChange={handleScaledPersonChange}
+        onBack={handleBack}
+        onEdit={handleEdit}
+        onDelete={handleDeleteClick}
+      />
+
+      {/* Dialog de confirmation pour suppression de recette */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => handleDelete(recipe.id)}
+        title="Supprimer la recette"
+        message={`Êtes-vous sûr de vouloir supprimer la recette "${recipe?.name}" ? Cette action est irréversible.`}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        variant="danger"
+      />
+    </>
   );
 }
