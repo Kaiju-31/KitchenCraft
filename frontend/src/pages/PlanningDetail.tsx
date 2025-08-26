@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, Plus, Copy, Trash2, ShoppingCart, X, Baby, FileDown } from 'lucide-react';
 import type { WeeklyPlan, PlanRecipe } from '../types';
+import { MEAL_TYPES } from '../types';
 import { usePlans, usePlanRecipes, useShoppingList } from '../hooks/usePlans';
 import { exportPlanningToPDF, exportShoppingListToPDF } from '../utils/pdfExport';
 
@@ -130,6 +131,11 @@ export default function PlanningDetailPage() {
     }
     
     return days;
+  };
+
+  const getMealTypeColor = (mealType?: string) => {
+    const mealTypeData = MEAL_TYPES.find(type => type.value === (mealType || ''));
+    return mealTypeData?.color || 'from-slate-100 to-slate-200';
   };
 
   const getRecipesForDate = (date: string) => {
@@ -297,7 +303,9 @@ export default function PlanningDetailPage() {
                           )}
                         </div>
                         {planRecipe.mealType && (
-                          <p className="text-sm text-slate-600">{planRecipe.mealType}</p>
+                          <span className={`inline-block px-2 py-1 rounded-lg text-xs font-medium text-slate-700 bg-gradient-to-r ${getMealTypeColor(planRecipe.mealType)} border border-white/40`}>
+                            {planRecipe.mealType}
+                          </span>
                         )}
                         {planRecipe.scaledPerson && (
                           <p className="text-sm text-slate-600">

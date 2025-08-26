@@ -193,3 +193,12 @@ export interface ShoppingListByCategory {
   checkedItems: number;
 }
 
+// Constantes pour les types de repas avec couleurs pastels
+export const MEAL_TYPES: Category[] = [
+  { value: '', label: 'Non spécifié', color: 'from-slate-100 to-slate-200' },
+  { value: 'Petit-déjeuner', label: 'Petit-déjeuner', color: 'from-amber-100 to-yellow-200' },
+  { value: 'Déjeuner', label: 'Déjeuner', color: 'from-blue-100 to-sky-200' },
+  { value: 'Dîner', label: 'Dîner', color: 'from-violet-100 to-purple-200' },
+  { value: 'Collation', label: 'Collation', color: 'from-emerald-100 to-green-200' }
+];
+
