@@ -91,7 +91,7 @@ public class IngredientService {
         String search = query.trim();
         Pageable pageable = PageRequest.of(0, Math.min(limit, 50)); // Max 50 résultats
 
-        return ingredientRepository.findIngredientNamesWithCategory(search, pageable);
+        return ingredientRepository.findIngredientNamesWithBasicCategory(search, pageable);
     }
 
     public List<String> autocompleteIngredients(String query) {

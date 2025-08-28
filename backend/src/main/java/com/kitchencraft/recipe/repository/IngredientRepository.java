@@ -22,14 +22,14 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
 
     // Recherche par catégorie aussi
     @Query("""
-        SELECT i.name FROM Ingredient i 
+        SELECT CONCAT(i.name, ' (', COALESCE(i.basicCategory, i.category, 'Autres'), ')') FROM Ingredient i 
         WHERE (LOWER(i.name) LIKE LOWER(CONCAT('%', :search, '%')) 
-               OR LOWER(i.category) LIKE LOWER(CONCAT('%', :search, '%')))
+               OR LOWER(COALESCE(i.basicCategory, i.category, '')) LIKE LOWER(CONCAT('%', :search, '%')))
         ORDER BY 
             CASE WHEN LOWER(i.name) LIKE LOWER(CONCAT(:search, '%')) THEN 1 ELSE 2 END,
             i.name
     """)
-    List<String> findIngredientNamesWithCategory(@Param("search") String search, Pageable pageable);
+    List<String> findIngredientNamesWithBasicCategory(@Param("search") String search, Pageable pageable);
 
     // Catégorie la plus utilisée
     @Query("""

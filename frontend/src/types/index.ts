@@ -169,7 +169,7 @@ export interface Category {
 // Types pour les requêtes API
 export interface IngredientRequest {
   name: string;
-  category: string;
+  basicCategory: string;
 }
 
 export interface RecipeRequest {

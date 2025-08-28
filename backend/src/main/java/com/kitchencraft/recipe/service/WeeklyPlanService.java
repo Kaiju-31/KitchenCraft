@@ -150,7 +150,7 @@ public class WeeklyPlanService {
     }
 
     public List<ShoppingListItemDto> getShoppingList(Long planId) {
-        return shoppingListItemRepository.findByWeeklyPlanIdOrderByIngredientCategory(planId)
+        return shoppingListItemRepository.findByWeeklyPlanIdOrderByIngredientBasicCategory(planId)
                 .stream()
                 .map(ShoppingListItemMapper::toDto)
                 .collect(Collectors.toList());

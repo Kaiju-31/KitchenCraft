@@ -20,7 +20,7 @@ export default function IngredientForm({
 }: IngredientFormProps) {
   const [formData, setFormData] = useState<IngredientRequest>({
     name: ingredient?.name || '',
-    category: ingredient?.category || 'Légumes'
+    basicCategory: ingredient?.basicCategory || 'Légumes'
   });
 
   // Mettre à jour le formulaire quand un ingrédient est passé en props
@@ -28,12 +28,12 @@ export default function IngredientForm({
     if (ingredient) {
       setFormData({
         name: ingredient.name,
-        category: ingredient.category
+        basicCategory: ingredient.basicCategory
       });
     } else {
       setFormData({
         name: '',
-        category: 'Légumes'
+        basicCategory: 'Légumes'
       });
     }
   }, [ingredient]);
@@ -60,7 +60,7 @@ export default function IngredientForm({
       onClose();
       // Reset form for next use
       if (!ingredient) {
-        setFormData({ name: '', category: 'Légumes' });
+        setFormData({ name: '', basicCategory: 'Légumes' });
       }
     } catch (error) {
       console.error('Erreur lors de la soumission:', error);
@@ -74,7 +74,7 @@ export default function IngredientForm({
       onClose();
       // Reset form if it's a create form
       if (!ingredient) {
-        setFormData({ name: '', category: 'Légumes' });
+        setFormData({ name: '', basicCategory: 'Légumes' });
       }
     }
   };
@@ -106,8 +106,8 @@ export default function IngredientForm({
             Catégorie *
           </label>
           <select
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            value={formData.basicCategory}
+            onChange={(e) => setFormData({ ...formData, basicCategory: e.target.value })}
             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
             disabled={isSubmitting}
             required
