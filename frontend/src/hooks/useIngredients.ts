@@ -96,9 +96,10 @@ export function useIngredients() {
 
     // Filtrage par catégories sélectionnées
     if (filters.selectedCategories.length > 0 && !filters.selectedCategories.includes('Tous')) {
-      filtered = filtered.filter(ingredient =>
-        filters.selectedCategories.includes(ingredient.category)
-      );
+      filtered = filtered.filter(ingredient => {
+        const ingredientCategory = (ingredient as any).basicCategory || ingredient.category;
+        return filters.selectedCategories.includes(ingredientCategory);
+      });
     }
 
     // Maintenir l'ordre alphabétique après filtrage
@@ -123,6 +124,7 @@ export function useIngredients() {
     updateIngredient,
     deleteIngredient,
     loadIngredients,
-    searchIngredients
+    searchIngredients,
+    refreshIngredients: loadIngredients
   };
 }

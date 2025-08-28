@@ -1,5 +1,7 @@
-import { X, Package, Info, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { X, Package, Info, Trash2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import type { FoodItem, User } from '../../types';
+import { BASIC_INGREDIENT_CATEGORIES } from '../../types';
 import Button from '../ui/Button';
 import { useKeyboard } from '../../hooks/useKeyboard';
 
@@ -8,12 +10,15 @@ interface FoodItemDetailProps {
   onClose: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  onSync?: () => void;
   foodItem: FoodItem | null;
   user: User | null;
   closeOnOutsideClick?: boolean;
 }
 
-export default function FoodItemDetail({ isOpen, onClose, onEdit, onDelete, foodItem, user, closeOnOutsideClick = true }: FoodItemDetailProps) {
+export default function FoodItemDetail({ isOpen, onClose, onEdit, onDelete, onSync, foodItem, user, closeOnOutsideClick = true }: FoodItemDetailProps) {
+  const [showAdvancedDetails, setShowAdvancedDetails] = useState(false);
+  
   useKeyboard({
     onEscape: onClose,
     enabled: isOpen
@@ -27,16 +32,24 @@ export default function FoodItemDetail({ isOpen, onClose, onEdit, onDelete, food
 
   if (!isOpen || !foodItem) return null;
 
-  const isAdvancedMode = user?.advancedMode || false;
+  const isAdvancedMode = true; // Toujours afficher les données nutritionnelles pour les ingrédients
 
   const formatValue = (value: number | undefined | null, unit: string) => {
     if (value === null || value === undefined) return '-';
     return `${value} ${unit}`;
   };
 
-  const renderNutrientSection = (title: string, nutrients: Array<{label: string, value: number | undefined | null, unit: string}>) => {
+  const getCategoryInfo = (foodItem: FoodItem) => {
+    const category = foodItem.basicCategory || foodItem.category;
+    return BASIC_INGREDIENT_CATEGORIES.find(cat => cat.value === category) || BASIC_INGREDIENT_CATEGORIES[0];
+  };
+
+  const renderNutrientSection = (title: string, nutrients: Array<{label: string, value: number | undefined | null, unit: string}>, forceShow = false) => {
     const hasValues = nutrients.some(n => n.value !== null && n.value !== undefined);
-    if (!hasValues) return null;
+    
+    // forceShow = true : affiche toujours la section même sans valeurs (affiche "-" pour les valeurs manquantes)
+    // forceShow = false : n'affiche la section que s'il y a au moins une valeur
+    if (!hasValues && !forceShow) return null;
 
     return (
       <div className="mb-6">
@@ -47,7 +60,7 @@ export default function FoodItemDetail({ isOpen, onClose, onEdit, onDelete, food
           {nutrients.map((nutrient, index) => (
             <div key={index} className="flex justify-between text-sm">
               <span className="text-slate-600">{nutrient.label}</span>
-              <span className="font-medium text-slate-800">
+              <span className={`font-medium ${nutrient.value ? 'text-slate-800' : 'text-slate-400'}`}>
                 {formatValue(nutrient.value, nutrient.unit)}
               </span>
             </div>
@@ -80,6 +93,12 @@ export default function FoodItemDetail({ isOpen, onClose, onEdit, onDelete, food
                 Modifier
               </Button>
             )}
+            {onSync && foodItem?.barcode && (
+              <Button onClick={onSync} variant="outline" className="text-white border-orange-300 hover:bg-orange-500 hover:text-white">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Resync
+              </Button>
+            )}
             {onDelete && (
               <Button onClick={onDelete} variant="outline" className="text-white border-red-300 hover:bg-red-500 hover:text-white">
                 <Trash2 className="w-4 h-4 mr-2" />
@@ -106,9 +125,11 @@ export default function FoodItemDetail({ isOpen, onClose, onEdit, onDelete, food
               </h3>
               
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-slate-600">Catégorie</span>
-                  <span className="font-medium text-slate-800">{foodItem.basicCategory}</span>
+                  <div className={`px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r ${getCategoryInfo(foodItem).color} text-white shadow-lg`}>
+                    {getCategoryInfo(foodItem).label}
+                  </div>
                 </div>
                 {foodItem.barcode && (
                   <div className="flex justify-between">
@@ -154,36 +175,55 @@ export default function FoodItemDetail({ isOpen, onClose, onEdit, onDelete, food
                   { label: 'Protéines', value: foodItem.protein, unit: 'g' },
                   { label: 'Fibres', value: foodItem.fiber, unit: 'g' },
                   { label: 'Sel', value: foodItem.salt, unit: 'g' }
-                ])}
+                ], true)}
 
-                {/* Vitamines */}
-                {renderNutrientSection('Vitamines', [
-                  { label: 'Vitamine A', value: foodItem.vitaminA, unit: 'µg' },
-                  { label: 'Vitamine B1', value: foodItem.vitaminB1, unit: 'mg' },
-                  { label: 'Vitamine B2', value: foodItem.vitaminB2, unit: 'mg' },
-                  { label: 'Vitamine B3', value: foodItem.vitaminB3, unit: 'mg' },
-                  { label: 'Vitamine B6', value: foodItem.vitaminB6, unit: 'mg' },
-                  { label: 'Vitamine B9', value: foodItem.vitaminB9, unit: 'µg' },
-                  { label: 'Vitamine B12', value: foodItem.vitaminB12, unit: 'µg' },
-                  { label: 'Vitamine C', value: foodItem.vitaminC, unit: 'mg' },
-                  { label: 'Vitamine D', value: foodItem.vitaminD, unit: 'µg' },
-                  { label: 'Vitamine E', value: foodItem.vitaminE, unit: 'mg' },
-                  { label: 'Vitamine K', value: foodItem.vitaminK, unit: 'µg' }
-                ])}
+                {/* Dropdown pour plus de détails */}
+                <div className="mt-6">
+                  <button
+                    onClick={() => setShowAdvancedDetails(!showAdvancedDetails)}
+                    className="flex items-center justify-between w-full p-3 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors duration-200"
+                  >
+                    <span className="font-medium text-slate-700">Voir plus de détails nutritionnels</span>
+                    {showAdvancedDetails ? (
+                      <ChevronUp className="w-5 h-5 text-slate-500" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-slate-500" />
+                    )}
+                  </button>
+                  
+                  {showAdvancedDetails && (
+                    <div className="mt-4 space-y-6 animate-in slide-in-from-top-2 duration-300">
+                      {/* Vitamines */}
+                      {renderNutrientSection('Vitamines', [
+                        { label: 'Vitamine A', value: foodItem.vitaminA, unit: 'µg' },
+                        { label: 'Vitamine B1', value: foodItem.vitaminB1, unit: 'mg' },
+                        { label: 'Vitamine B2', value: foodItem.vitaminB2, unit: 'mg' },
+                        { label: 'Vitamine B3', value: foodItem.vitaminB3, unit: 'mg' },
+                        { label: 'Vitamine B6', value: foodItem.vitaminB6, unit: 'mg' },
+                        { label: 'Vitamine B9', value: foodItem.vitaminB9, unit: 'µg' },
+                        { label: 'Vitamine B12', value: foodItem.vitaminB12, unit: 'µg' },
+                        { label: 'Vitamine C', value: foodItem.vitaminC, unit: 'mg' },
+                        { label: 'Vitamine D', value: foodItem.vitaminD, unit: 'µg' },
+                        { label: 'Vitamine E', value: foodItem.vitaminE, unit: 'mg' },
+                        { label: 'Vitamine K', value: foodItem.vitaminK, unit: 'µg' }
+                      ], true)}
 
-                {/* Minéraux */}
-                {renderNutrientSection('Minéraux', [
-                  { label: 'Calcium', value: foodItem.calcium, unit: 'mg' },
-                  { label: 'Fer', value: foodItem.iron, unit: 'mg' },
-                  { label: 'Magnésium', value: foodItem.magnesium, unit: 'mg' },
-                  { label: 'Phosphore', value: foodItem.phosphorus, unit: 'mg' },
-                  { label: 'Potassium', value: foodItem.potassium, unit: 'mg' },
-                  { label: 'Zinc', value: foodItem.zinc, unit: 'mg' },
-                  { label: 'Cuivre', value: foodItem.copper, unit: 'mg' },
-                  { label: 'Manganèse', value: foodItem.manganese, unit: 'mg' },
-                  { label: 'Sélénium', value: foodItem.selenium, unit: 'µg' },
-                  { label: 'Iode', value: foodItem.iodine, unit: 'µg' }
-                ])}
+                      {/* Minéraux */}
+                      {renderNutrientSection('Minéraux', [
+                        { label: 'Calcium', value: foodItem.calcium, unit: 'mg' },
+                        { label: 'Fer', value: foodItem.iron, unit: 'mg' },
+                        { label: 'Magnésium', value: foodItem.magnesium, unit: 'mg' },
+                        { label: 'Phosphore', value: foodItem.phosphorus, unit: 'mg' },
+                        { label: 'Potassium', value: foodItem.potassium, unit: 'mg' },
+                        { label: 'Zinc', value: foodItem.zinc, unit: 'mg' },
+                        { label: 'Cuivre', value: foodItem.copper, unit: 'mg' },
+                        { label: 'Manganèse', value: foodItem.manganese, unit: 'mg' },
+                        { label: 'Sélénium', value: foodItem.selenium, unit: 'µg' },
+                        { label: 'Iode', value: foodItem.iodine, unit: 'µg' }
+                      ], true)}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>

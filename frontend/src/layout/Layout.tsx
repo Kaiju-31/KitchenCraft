@@ -97,20 +97,6 @@ export default function Layout() {
                             )}
                         </Link>
 
-                        <Link
-                            to="/food-items"
-                            className={`group relative flex items-center justify-center lg:justify-start lg:space-x-2 px-2 sm:px-3 lg:px-4 xl:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-300 text-sm sm:text-base ${
-                                isActive('/food-items')
-                                    ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/25'
-                                    : 'text-slate-700 hover:text-orange-600 hover:bg-white/50 hover:shadow-lg'
-                            }`}
-                        >
-                            <Apple className="w-4 h-4 sm:w-5 sm:h-5 xl:w-6 xl:h-6" />
-                            <span className="hidden lg:inline xl:text-lg ml-2">Nutrition</span>
-                            {!isActive('/food-items') && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                            )}
-                        </Link>
 
                         {/* User Menu */}
                         <div className="hidden sm:flex items-center space-x-2 ml-4 border-l border-white/20 pl-4">

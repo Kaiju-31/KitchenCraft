@@ -55,4 +55,39 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
     // Supprimer par nom
     void deleteByName(String name);
 
+    // Nouvelles méthodes pour le système nutritionnel fusionné
+    
+    @Query("""
+        SELECT i FROM Ingredient i
+        WHERE (:name IS NULL OR LOWER(i.name) LIKE LOWER(CONCAT('%', :name, '%')))
+        AND (:basicCategory IS NULL OR i.basicCategory = :basicCategory)
+        """)
+    List<Ingredient> findByFilters(@Param("name") String name, @Param("basicCategory") String basicCategory);
+    
+    List<Ingredient> findByBasicCategory(String basicCategory);
+    
+    Optional<Ingredient> findByBarcode(String barcode);
+    
+    long countByBasicCategory(String basicCategory);
+    
+    @Query("SELECT i FROM Ingredient i WHERE i.dataSource = 'OPENFOODFACTS'")
+    List<Ingredient> findAllFromOpenFoodFacts();
+    
+    @Query("SELECT i FROM Ingredient i WHERE i.dataSource = 'MANUAL'")
+    List<Ingredient> findAllManual();
+    
+    @Query("SELECT i FROM Ingredient i WHERE i.openFoodFactsId IS NOT NULL")
+    List<Ingredient> findAllWithOpenFoodFactsId();
+    
+    Optional<Ingredient> findByOpenFoodFactsId(String openFoodFactsId);
+    
+    @Query("SELECT i FROM Ingredient i WHERE i.brand IS NOT NULL ORDER BY i.brand")
+    List<Ingredient> findAllWithBrand();
+    
+    @Query("SELECT DISTINCT i.brand FROM Ingredient i WHERE i.brand IS NOT NULL ORDER BY i.brand")
+    List<String> findAllBrands();
+    
+    @Query("SELECT DISTINCT i.basicCategory FROM Ingredient i WHERE i.basicCategory IS NOT NULL ORDER BY i.basicCategory")
+    List<String> findAllBasicCategories();
+
 }

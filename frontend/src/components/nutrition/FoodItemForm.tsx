@@ -37,6 +37,62 @@ export default function FoodItemForm({ isOpen, onClose, onSave, user, initialDat
   const isAdvancedMode = user?.advancedMode || false;
   const categories = BASIC_INGREDIENT_CATEGORIES;
 
+  // Effect pour pré-remplir le formulaire avec les données existantes
+  useEffect(() => {
+    if (initialData && isOpen) {
+      setFormData({
+        name: initialData.name || '',
+        brand: initialData.brand || '',
+        barcode: initialData.barcode || '',
+        basicCategory: initialData.basicCategory || 'Autres',
+        category: initialData.category || '',
+        dataSource: initialData.dataSource || 'MANUAL',
+        // Macronutriments
+        energyKcal: initialData.energyKcal || undefined,
+        carbohydrates: initialData.carbohydrates || undefined,
+        sugars: initialData.sugars || undefined,
+        fat: initialData.fat || undefined,
+        saturatedFat: initialData.saturatedFat || undefined,
+        protein: initialData.protein || undefined,
+        fiber: initialData.fiber || undefined,
+        salt: initialData.salt || undefined,
+        // Vitamines
+        vitaminA: initialData.vitaminA || undefined,
+        vitaminB1: initialData.vitaminB1 || undefined,
+        vitaminB2: initialData.vitaminB2 || undefined,
+        vitaminB3: initialData.vitaminB3 || undefined,
+        vitaminB6: initialData.vitaminB6 || undefined,
+        vitaminB9: initialData.vitaminB9 || undefined,
+        vitaminB12: initialData.vitaminB12 || undefined,
+        vitaminC: initialData.vitaminC || undefined,
+        vitaminD: initialData.vitaminD || undefined,
+        vitaminE: initialData.vitaminE || undefined,
+        vitaminK: initialData.vitaminK || undefined,
+        // Minéraux
+        calcium: initialData.calcium || undefined,
+        iron: initialData.iron || undefined,
+        magnesium: initialData.magnesium || undefined,
+        phosphorus: initialData.phosphorus || undefined,
+        potassium: initialData.potassium || undefined,
+        zinc: initialData.zinc || undefined,
+        copper: initialData.copper || undefined,
+        manganese: initialData.manganese || undefined,
+        selenium: initialData.selenium || undefined,
+        iodine: initialData.iodine || undefined
+      });
+    } else if (!initialData && isOpen) {
+      // Reset du formulaire si pas de données initiales
+      setFormData({
+        name: '',
+        brand: '',
+        barcode: '',
+        basicCategory: 'Autres',
+        category: '',
+        dataSource: 'MANUAL'
+      });
+    }
+  }, [initialData, isOpen]);
+
   const handleSave = () => {
     if (!formData.name?.trim()) {
       setError('Le nom du produit est obligatoire');

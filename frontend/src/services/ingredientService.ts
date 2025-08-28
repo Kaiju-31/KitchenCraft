@@ -100,6 +100,116 @@ class IngredientService {
     const response = await fetch(`${API_BASE_URL}/ingredients/search-contains?q=${encodeURIComponent(query)}&limit=${limit}`, this.getAuthenticatedFetchOptions());
     return this.handleResponse<string[]>(response);
   }
+
+  // Nouvelles méthodes pour le système nutritionnel fusionné
+  
+  async getIngredientById(id: number): Promise<Ingredient> {
+    const response = await fetch(`${API_BASE_URL}/ingredients/${id}`, this.getAuthenticatedFetchOptions());
+    return this.handleResponse<Ingredient>(response);
+  }
+  
+  async searchIngredients(name?: string, basicCategory?: string): Promise<Ingredient[]> {
+    const params = new URLSearchParams();
+    if (name) params.set('name', name);
+    if (basicCategory) params.set('basicCategory', basicCategory);
+    
+    const response = await fetch(`${API_BASE_URL}/ingredients/search?${params.toString()}`, this.getAuthenticatedFetchOptions());
+    return this.handleResponse<Ingredient[]>(response);
+  }
+  
+  async getByBasicCategory(basicCategory: string): Promise<Ingredient[]> {
+    const response = await fetch(`${API_BASE_URL}/ingredients/category/${encodeURIComponent(basicCategory)}`, this.getAuthenticatedFetchOptions());
+    return this.handleResponse<Ingredient[]>(response);
+  }
+  
+  async findByBarcode(barcode: string): Promise<Ingredient | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/ingredients/barcode/${encodeURIComponent(barcode)}`, this.getAuthenticatedFetchOptions());
+      if (response.status === 404) {
+        return null;
+      }
+      return this.handleResponse<Ingredient>(response);
+    } catch (error) {
+      if ((error as ApiError).status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+  
+  async searchByBarcode(barcode: string): Promise<Ingredient | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/ingredients/search-barcode/${encodeURIComponent(barcode)}`, this.getAuthenticatedFetchOptions());
+      if (response.status === 404) {
+        return null;
+      }
+      return this.handleResponse<Ingredient>(response);
+    } catch (error) {
+      if ((error as ApiError).status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+  
+  async searchOpenFoodFactsOnly(barcode: string): Promise<Ingredient | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/ingredients/search-openfoodfacts/${encodeURIComponent(barcode)}`, this.getAuthenticatedFetchOptions());
+      if (response.status === 404) {
+        return null;
+      }
+      return this.handleResponse<Ingredient>(response);
+    } catch (error) {
+      if ((error as ApiError).status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+  
+  async saveIngredient(ingredient: Ingredient): Promise<Ingredient> {
+    const response = await fetch(`${API_BASE_URL}/ingredients/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authService.getAuthHeaders(),
+      },
+      body: JSON.stringify(ingredient),
+    });
+    return this.handleResponse<Ingredient>(response);
+  }
+  
+  async syncWithOpenFoodFacts(id: number): Promise<Ingredient> {
+    const response = await fetch(`${API_BASE_URL}/ingredients/${id}/sync`, {
+      method: 'POST',
+      headers: {
+        ...authService.getAuthHeaders(),
+      },
+    });
+    return this.handleResponse<Ingredient>(response);
+  }
+  
+  async getNutritionalStats(): Promise<{ withData: number; fromOpenFoodFacts: number }> {
+    const [withDataResponse, fromApiResponse] = await Promise.all([
+      fetch(`${API_BASE_URL}/ingredients/stats/nutritional`, this.getAuthenticatedFetchOptions()),
+      fetch(`${API_BASE_URL}/ingredients/stats/openfoodfacts`, this.getAuthenticatedFetchOptions())
+    ]);
+    
+    const withData = await this.handleResponse<number>(withDataResponse);
+    const fromOpenFoodFacts = await this.handleResponse<number>(fromApiResponse);
+    
+    return { withData, fromOpenFoodFacts };
+  }
+  
+  async getAllFromOpenFoodFacts(): Promise<Ingredient[]> {
+    const response = await fetch(`${API_BASE_URL}/ingredients/openfoodfacts`, this.getAuthenticatedFetchOptions());
+    return this.handleResponse<Ingredient[]>(response);
+  }
+  
+  async getAllManual(): Promise<Ingredient[]> {
+    const response = await fetch(`${API_BASE_URL}/ingredients/manual`, this.getAuthenticatedFetchOptions());
+    return this.handleResponse<Ingredient[]>(response);
+  }
 }
 
 export const ingredientService = new IngredientService();

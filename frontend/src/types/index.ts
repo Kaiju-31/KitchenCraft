@@ -1,8 +1,64 @@
-// Types pour les ingrédients
+// Types pour les ingrédients (fusionné avec les données nutritionnelles)
 export interface Ingredient {
   id: number;
   name: string;
   category: string;
+  
+  // Nouveaux champs nutritionnels (tous optionnels pour compatibilité)
+  brand?: string;
+  barcode?: string;
+  basicCategory?: string;
+  openFoodFactsId?: string;
+  dataSource?: 'MANUAL' | 'OPENFOODFACTS';
+  lastSync?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  
+  // Macronutriments (pour 100g, nullable)
+  energy?: number; // kJ
+  energyKcal?: number; // kcal
+  carbohydrates?: number; // g
+  sugars?: number; // g
+  fiber?: number; // g
+  fat?: number; // g
+  saturatedFat?: number; // g
+  monounsaturatedFat?: number; // g
+  polyunsaturatedFat?: number; // g
+  transFat?: number; // g
+  protein?: number; // g
+  salt?: number; // g
+  sodium?: number; // mg
+  alcohol?: number; // g
+  
+  // Vitamines (nullable)
+  vitaminA?: number; // µg
+  vitaminB1?: number; // mg
+  vitaminB2?: number; // mg
+  vitaminB3?: number; // mg
+  vitaminB5?: number; // mg
+  vitaminB6?: number; // mg
+  vitaminB7?: number; // µg
+  vitaminB9?: number; // µg
+  vitaminB12?: number; // µg
+  vitaminC?: number; // mg
+  vitaminD?: number; // µg
+  vitaminE?: number; // mg
+  vitaminK?: number; // µg
+  
+  // Minéraux (nullable)
+  calcium?: number; // mg
+  iron?: number; // mg
+  magnesium?: number; // mg
+  phosphorus?: number; // mg
+  potassium?: number; // mg
+  zinc?: number; // mg
+  copper?: number; // mg
+  manganese?: number; // mg
+  selenium?: number; // µg
+  iodine?: number; // µg
+  chromium?: number; // µg
+  molybdenum?: number; // µg
+  fluoride?: number; // mg
 }
 
 // Types pour les articles alimentaires avec données nutritionnelles
