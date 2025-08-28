@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -187,11 +188,22 @@ public class GlobalExceptionHandler {
         
         logger.error("Data integrity violation: {}", ex.getMessage());
         
+        String message = "Violation des contraintes d'intégrité de données";
+        
+        // Améliorer le message selon le type d'erreur
+        if (ex.getMessage() != null) {
+            if (ex.getMessage().contains("foreign key") || ex.getMessage().contains("fk_")) {
+                message = "Impossible de supprimer cet élément car il est utilisé ailleurs dans l'application.";
+            } else if (ex.getMessage().contains("unique") || ex.getMessage().contains("duplicate")) {
+                message = "Cette valeur existe déjà dans le système.";
+            }
+        }
+        
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.CONFLICT.value())
                 .error("Data Integrity Violation")
-                .message("Violation des contraintes d'intégrité de données")
+                .message(message)
                 .path(extractPath(request))
                 .build();
 
@@ -236,6 +248,26 @@ public class GlobalExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+
+    /**
+     * Gestion des ResponseStatusException (permet de préserver les messages personnalisés)
+     */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(
+            ResponseStatusException ex, WebRequest request) {
+        
+        logger.warn("Response status exception: {} - {}", ex.getStatusCode(), ex.getReason());
+        
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(ex.getStatusCode().value())
+                .error(ex.getStatusCode().toString())
+                .message(ex.getReason() != null ? ex.getReason() : "Une erreur s'est produite")
+                .path(extractPath(request))
+                .build();
+
+        return new ResponseEntity<>(errorResponse, ex.getStatusCode());
     }
 
     /**

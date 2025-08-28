@@ -23,4 +23,7 @@ public interface ShoppingListItemRepository extends JpaRepository<ShoppingListIt
     List<ShoppingListItem> findByPlanIdAndBasicCategory(@Param("planId") Long planId, @Param("basicCategory") String basicCategory);
 
     void deleteByWeeklyPlanId(Long weeklyPlanId);
+    
+    // Compter combien de listes de courses utilisent un ingrédient donné
+    long countByIngredient_Id(Long ingredientId);
 }

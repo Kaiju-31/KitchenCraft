@@ -54,6 +54,7 @@ export default function IngredientsPage() {
   const [showDetail, setShowDetail] = useState(false);
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
@@ -226,12 +227,48 @@ export default function IngredientsPage() {
     if (!selectedIngredient) return;
     
     try {
+      setDeleteError(null); // Reset erreur précédente
       await deleteIngredient(selectedIngredient.id);
       setShowDeleteConfirm(false);
       setSelectedIngredient(null);
       if (id) navigate('/ingredients');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la suppression:', error);
+      
+      let errorMessage = "Impossible de supprimer cet ingrédient.";
+      
+      // Gérer spécifiquement les erreurs de suppression
+      if (error?.status === 409 || error?.status === 500) {
+        // Essayer d'extraire le message détaillé du backend
+        if (error?.message) {
+          try {
+            const parsed = JSON.parse(error.message);
+            if (parsed?.message) {
+              errorMessage = parsed.message;
+            }
+          } catch (parseError) {
+            // Si le parsing échoue, utiliser le message brut s'il contient des infos utiles
+            if (error.message.includes('recette') || error.message.includes('recipe') || 
+                error.message.includes('shopping') || error.message.includes('utilisé') ||
+                error.message.includes('application')) {
+              errorMessage = error.message;
+            }
+          }
+        }
+        
+        // Messages spécifiques selon le type d'erreur
+        if (error?.status === 500 && !errorMessage.includes('utilisé') && !errorMessage.includes('recette') && !errorMessage.includes('application')) {
+          errorMessage = "Impossible de supprimer cet ingrédient. Il est probablement utilisé dans une recette ou une liste de courses.";
+        }
+        
+        setDeleteError(errorMessage);
+        setShowDeleteConfirm(false);
+      } else {
+        // Pour les autres erreurs
+        errorMessage = "Une erreur est survenue lors de la suppression de l'ingrédient.";
+        setDeleteError(errorMessage);
+        setShowDeleteConfirm(false);
+      }
     }
   };
 
@@ -712,6 +749,17 @@ export default function IngredientsPage() {
         message={`Êtes-vous sûr de vouloir supprimer l'ingrédient "${selectedIngredient?.name}" ? Cette action est irréversible.`}
         confirmText="Supprimer"
         cancelText="Annuler"
+        variant="danger"
+      />
+
+      {/* Dialog d'erreur de suppression */}
+      <ConfirmDialog
+        isOpen={!!deleteError}
+        onClose={() => setDeleteError(null)}
+        title="Impossible de supprimer l'ingrédient"
+        message={deleteError || ""}
+        confirmText="Compris"
+        showCancelButton={false}
         variant="danger"
       />
     </div>
