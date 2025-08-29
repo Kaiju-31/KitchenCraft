@@ -66,6 +66,9 @@ public class User implements UserDetails {
     @Column(name = "credentials_non_expired", nullable = false)
     private boolean credentialsNonExpired = true;
     
+    @Column(name = "advanced_mode", nullable = false)
+    private boolean advancedMode = false;
+    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()

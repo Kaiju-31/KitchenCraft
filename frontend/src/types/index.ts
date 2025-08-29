@@ -5,6 +5,79 @@ export interface Ingredient {
   category: string;
 }
 
+// Types pour les articles alimentaires avec données nutritionnelles
+export interface FoodItem {
+  id: number;
+  name: string;
+  brand?: string;
+  barcode?: string;
+  category: string;
+  basicCategory: string;
+  openFoodFactsId?: string;
+  dataSource: 'MANUAL' | 'OPENFOODFACTS';
+  lastSync?: string;
+  createdAt: string;
+  updatedAt?: string;
+  
+  // Macronutriments (pour 100g, nullable)
+  energy?: number; // kJ
+  energyKcal?: number; // kcal
+  carbohydrates?: number; // g
+  sugars?: number; // g
+  fiber?: number; // g
+  fat?: number; // g
+  saturatedFat?: number; // g
+  monounsaturatedFat?: number; // g
+  polyunsaturatedFat?: number; // g
+  transFat?: number; // g
+  protein?: number; // g
+  salt?: number; // g
+  sodium?: number; // mg
+  alcohol?: number; // g
+  
+  // Vitamines (nullable)
+  vitaminA?: number; // µg
+  vitaminB1?: number; // mg
+  vitaminB2?: number; // mg
+  vitaminB3?: number; // mg
+  vitaminB5?: number; // mg
+  vitaminB6?: number; // mg
+  vitaminB7?: number; // µg
+  vitaminB9?: number; // µg
+  vitaminB12?: number; // µg
+  vitaminC?: number; // mg
+  vitaminD?: number; // µg
+  vitaminE?: number; // mg
+  vitaminK?: number; // µg
+  
+  // Minéraux (nullable)
+  calcium?: number; // mg
+  iron?: number; // mg
+  magnesium?: number; // mg
+  phosphorus?: number; // mg
+  potassium?: number; // mg
+  zinc?: number; // mg
+  copper?: number; // mg
+  manganese?: number; // mg
+  selenium?: number; // µg
+  iodine?: number; // µg
+  chromium?: number; // µg
+  molybdenum?: number; // µg
+  fluoride?: number; // mg
+}
+
+// Types pour les utilisateurs avec mode avancé
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  advancedMode: boolean;
+  enabled: boolean;
+  createdAt: string;
+}
+
 // Types pour les recettes et ingrédients de recettes
 export interface RecipeIngredient {
   id: number;
@@ -92,31 +165,21 @@ export interface RecipeFilters {
   isBabyFriendly?: boolean;
 }
 
-// Constantes pour les catégories d'ingrédients
-export const INGREDIENT_CATEGORIES: Category[] = [
+// Constantes pour les catégories d'ingrédients - 7 catégories de base
+export const BASIC_INGREDIENT_CATEGORIES: Category[] = [
   { value: 'Tous', label: 'Tous', color: 'from-slate-500 to-slate-600' },
-  { value: 'Boissons', label: 'Boissons', color: 'from-cyan-500 to-blue-600' },
-  { value: 'Céréales', label: 'Céréales', color: 'from-amber-500 to-yellow-600' },
-  { value: 'Condiments', label: 'Condiments', color: 'from-indigo-500 to-blue-600' },
-  { value: 'Conserves', label: 'Conserves', color: 'from-slate-600 to-gray-700' },
-  { value: 'Épices', label: 'Épices', color: 'from-purple-500 to-purple-600' },
-  { value: 'Féculents', label: 'Féculents', color: 'from-amber-600 to-yellow-600' },
-  { value: 'Fromages', label: 'Fromages', color: 'from-yellow-500 to-orange-500' },
-  { value: 'Fruits', label: 'Fruits', color: 'from-red-500 to-pink-600' },
-  { value: 'Herbes', label: 'Herbes', color: 'from-green-600 to-lime-600' },
-  { value: 'Légumes', label: 'Légumes', color: 'from-green-500 to-emerald-600' },
-  { value: 'Légumineuses', label: 'Légumineuses', color: 'from-emerald-600 to-green-700' },
-  { value: 'Matières grasses', label: 'Mat. grasses', color: 'from-yellow-600 to-amber-600' },
-  { value: 'Noix et graines', label: 'Noix et graines', color: 'from-orange-600 to-amber-700' },
-  { value: 'Œufs', label: 'Œufs', color: 'from-yellow-400 to-orange-500' },
-  { value: 'Pain et pâtisserie', label: 'Pain et pâtisserie', color: 'from-amber-500 to-orange-600' },
-  { value: 'Poissons', label: 'Poissons', color: 'from-blue-500 to-cyan-600' },
+  { value: 'Fruits et Légumes', label: 'Fruits et Légumes', color: 'from-green-500 to-emerald-600' },
+  { value: 'Féculents', label: 'Féculents', color: 'from-amber-500 to-yellow-600' },
+  { value: 'Légumineuses', label: 'Légumineuses', color: 'from-red-500 to-pink-600' },
+  { value: 'Viandes, Poissons, Oeufs', label: 'Viandes, Poissons, Oeufs', color: 'from-orange-500 to-amber-600' },
   { value: 'Produits laitiers', label: 'Produits laitiers', color: 'from-sky-400 to-blue-500' },
-  { value: 'Protéines', label: 'Protéines', color: 'from-orange-500 to-amber-600' },
-  { value: 'Sucreries', label: 'Sucreries', color: 'from-pink-500 to-rose-600' },
-  { value: 'Surgelés', label: 'Surgelés', color: 'from-cyan-400 to-sky-500' },
-  { value: 'Viandes', label: 'Viandes', color: 'from-red-600 to-red-700' }
+  { value: 'Matières grasses', label: 'Matières grasses', color: 'from-yellow-600 to-amber-600' },
+  { value: 'Produits sucrés', label: 'Produits sucrés', color: 'from-pink-500 to-rose-600' },
+  { value: 'Autres', label: 'Autres', color: 'from-purple-500 to-purple-600' }
 ];
+
+// Alias pour compatibilité - utilise les catégories de base
+export const INGREDIENT_CATEGORIES = BASIC_INGREDIENT_CATEGORIES;
 
 // Constantes pour les types de recettes
 export const RECIPE_TYPES: Category[] = [
