@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Scan, RefreshCw, Search, Filter, Edit, Trash2, Grid, List, Eye } from 'lucide-react';
-import type { Ingredient, User, ViewMode } from '../types';
+import type { Ingredient, User, ViewMode, IngredientRequest } from '../types';
 import { BASIC_INGREDIENT_CATEGORIES } from '../types';
 
 // Components
@@ -10,9 +10,9 @@ import SearchBar from '../components/ui/SearchBar';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import EmptyState from '../components/ui/EmptyState';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
-import FoodItemForm from '../components/nutrition/FoodItemForm';
 import BarcodeScanner from '../components/nutrition/BarcodeScanner';
-import FoodItemDetail from '../components/nutrition/FoodItemDetail';
+import IngredientDetail from '../components/nutrition/IngredientDetail';
+import AdvancedIngredientForm from '../components/forms/AdvancedIngredientForm';
 
 // Hooks
 import { useIngredients } from '../hooks/useIngredients';
@@ -272,7 +272,7 @@ export default function IngredientsPage() {
     }
   };
 
-  const handleFormSubmit = async (data: any) => {
+  const handleFormSubmit = async (data: IngredientRequest) => {
     try {
       console.log('=== DEBUG SAUVEGARDE ===');
       console.log('selectedIngredient:', selectedIngredient);
@@ -715,8 +715,8 @@ export default function IngredientsPage() {
       </div>
 
       {/* Modaux */}
-      <FoodItemForm
-        initialData={selectedIngredient as any}
+      <AdvancedIngredientForm
+        initialData={selectedIngredient}
         isOpen={showForm}
         onClose={handleFormClose}
         onSave={handleFormSubmit}
@@ -730,8 +730,8 @@ export default function IngredientsPage() {
       />
 
       {selectedIngredient && (
-        <FoodItemDetail
-          foodItem={selectedIngredient as any}
+        <IngredientDetail
+          ingredient={selectedIngredient}
           isOpen={showDetail}
           onClose={handleDetailClose}
           onEdit={() => handleEdit(selectedIngredient)}

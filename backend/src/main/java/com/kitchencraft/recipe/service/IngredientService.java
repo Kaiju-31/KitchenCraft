@@ -4,7 +4,6 @@ import com.kitchencraft.recipe.dto.IngredientDto;
 import com.kitchencraft.recipe.dto.IngredientRequest;
 import com.kitchencraft.recipe.mapper.IngredientMapper;
 import com.kitchencraft.recipe.model.Ingredient;
-import com.kitchencraft.recipe.model.FoodItem;
 import com.kitchencraft.recipe.repository.IngredientRepository;
 import com.kitchencraft.recipe.repository.ShoppingListItemRepository;
 import com.kitchencraft.recipe.repository.RecipeIngredientRepository;
@@ -47,7 +46,8 @@ public class IngredientService {
 
         Ingredient ingredient = new Ingredient();
         ingredient.setName(request.getName());
-        ingredient.setCategory(request.getCategory());
+        ingredient.setBasicCategory(request.getBasicCategory());
+        ingredient.setCategory(request.getBasicCategory()); // For backward compatibility
         ingredient.setDataSource("MANUAL");
         ingredient.setCreatedAt(LocalDateTime.now());
 
@@ -60,7 +60,8 @@ public class IngredientService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ingredient not found"));
 
         ingredient.setName(request.getName());
-        ingredient.setCategory(request.getCategory());
+        ingredient.setBasicCategory(request.getBasicCategory());
+        ingredient.setCategory(request.getBasicCategory()); // For backward compatibility
         ingredient.setUpdatedAt(LocalDateTime.now());
 
         return IngredientMapper.toDto(ingredientRepository.save(ingredient));
@@ -248,77 +249,12 @@ public class IngredientService {
     
     // Nouvelle méthode : rechercher OpenFoodFacts sans sauvegarder automatiquement
     public IngredientDto searchOpenFoodFactsOnly(String barcode) {
-        // Utiliser l'API FoodItem qui fonctionne, puis convertir
-        FoodItem foodItem = openFoodFactsService.searchByBarcode(barcode);
-        if (foodItem != null) {
-            // Convertir FoodItem vers Ingredient (sans sauvegarder)
-            Ingredient ingredient = convertFoodItemToIngredient(foodItem);
+        // Utiliser directement l'API Ingredient
+        Ingredient ingredient = openFoodFactsService.searchByBarcodeAsIngredient(barcode);
+        if (ingredient != null) {
             return IngredientMapper.toDto(ingredient);
         }
         return null;
-    }
-    
-    // Méthode helper pour convertir FoodItem vers Ingredient
-    private Ingredient convertFoodItemToIngredient(FoodItem foodItem) {
-        Ingredient ingredient = new Ingredient();
-        
-        // Champs de base
-        ingredient.setName(foodItem.getName());
-        ingredient.setBrand(foodItem.getBrand());
-        ingredient.setBarcode(foodItem.getBarcode());
-        ingredient.setCategory(foodItem.getCategory());
-        ingredient.setBasicCategory(foodItem.getBasicCategory());
-        ingredient.setOpenFoodFactsId(foodItem.getOpenFoodFactsId());
-        ingredient.setDataSource(foodItem.getDataSource());
-        ingredient.setLastSync(foodItem.getLastSync());
-        
-        // Données nutritionnelles
-        ingredient.setEnergy(foodItem.getEnergy());
-        ingredient.setEnergyKcal(foodItem.getEnergyKcal());
-        ingredient.setCarbohydrates(foodItem.getCarbohydrates());
-        ingredient.setSugars(foodItem.getSugars());
-        ingredient.setFiber(foodItem.getFiber());
-        ingredient.setFat(foodItem.getFat());
-        ingredient.setSaturatedFat(foodItem.getSaturatedFat());
-        ingredient.setMonounsaturatedFat(foodItem.getMonounsaturatedFat());
-        ingredient.setPolyunsaturatedFat(foodItem.getPolyunsaturatedFat());
-        ingredient.setTransFat(foodItem.getTransFat());
-        ingredient.setProtein(foodItem.getProtein());
-        ingredient.setSalt(foodItem.getSalt());
-        ingredient.setSodium(foodItem.getSodium());
-        ingredient.setAlcohol(foodItem.getAlcohol());
-        
-        // Vitamines
-        ingredient.setVitaminA(foodItem.getVitaminA());
-        ingredient.setVitaminB1(foodItem.getVitaminB1());
-        ingredient.setVitaminB2(foodItem.getVitaminB2());
-        ingredient.setVitaminB3(foodItem.getVitaminB3());
-        ingredient.setVitaminB5(foodItem.getVitaminB5());
-        ingredient.setVitaminB6(foodItem.getVitaminB6());
-        ingredient.setVitaminB7(foodItem.getVitaminB7());
-        ingredient.setVitaminB9(foodItem.getVitaminB9());
-        ingredient.setVitaminB12(foodItem.getVitaminB12());
-        ingredient.setVitaminC(foodItem.getVitaminC());
-        ingredient.setVitaminD(foodItem.getVitaminD());
-        ingredient.setVitaminE(foodItem.getVitaminE());
-        ingredient.setVitaminK(foodItem.getVitaminK());
-        
-        // Minéraux
-        ingredient.setCalcium(foodItem.getCalcium());
-        ingredient.setIron(foodItem.getIron());
-        ingredient.setMagnesium(foodItem.getMagnesium());
-        ingredient.setPhosphorus(foodItem.getPhosphorus());
-        ingredient.setPotassium(foodItem.getPotassium());
-        ingredient.setZinc(foodItem.getZinc());
-        ingredient.setCopper(foodItem.getCopper());
-        ingredient.setManganese(foodItem.getManganese());
-        ingredient.setSelenium(foodItem.getSelenium());
-        ingredient.setIodine(foodItem.getIodine());
-        ingredient.setChromium(foodItem.getChromium());
-        ingredient.setMolybdenum(foodItem.getMolybdenum());
-        ingredient.setFluoride(foodItem.getFluoride());
-        
-        return ingredient;
     }
 
     public IngredientDto saveIngredient(IngredientDto ingredientDto) {

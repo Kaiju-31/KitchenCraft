@@ -20,7 +20,7 @@ export default function IngredientForm({
 }: IngredientFormProps) {
   const [formData, setFormData] = useState<IngredientRequest>({
     name: ingredient?.name || '',
-    basicCategory: ingredient?.basicCategory || 'Légumes'
+    basicCategory: ingredient?.basicCategory || 'Fruits et Légumes'
   });
 
   // Mettre à jour le formulaire quand un ingrédient est passé en props
@@ -33,7 +33,7 @@ export default function IngredientForm({
     } else {
       setFormData({
         name: '',
-        basicCategory: 'Légumes'
+        basicCategory: 'Fruits et Légumes'
       });
     }
   }, [ingredient]);
@@ -60,7 +60,7 @@ export default function IngredientForm({
       onClose();
       // Reset form for next use
       if (!ingredient) {
-        setFormData({ name: '', basicCategory: 'Légumes' });
+        setFormData({ name: '', basicCategory: 'Fruits et Légumes' });
       }
     } catch (error) {
       console.error('Erreur lors de la soumission:', error);
@@ -74,7 +74,7 @@ export default function IngredientForm({
       onClose();
       // Reset form if it's a create form
       if (!ingredient) {
-        setFormData({ name: '', basicCategory: 'Légumes' });
+        setFormData({ name: '', basicCategory: 'Fruits et Légumes' });
       }
     }
   };
