@@ -227,7 +227,7 @@ export default function RecipeForm({
         steps: validSteps,
         ingredients: formIngredients.map(fi => ({
           ingredientName: fi.ingredient.name,
-          ingredientCategory: fi.ingredient.category,
+          ingredientCategory: fi.ingredient.basicCategory,
           quantity: fi.quantity,
           unit: fi.unit
         }))

@@ -32,7 +32,7 @@ export default function ShoppingList({ items, onUpdateItem, mode, onModeChange }
     });
     
     filteredItems.forEach(item => {
-      const category = item.ingredient.category;
+      const category = item.ingredient.basicCategory || item.ingredient.category;
       if (!categoryMap.has(category)) {
         categoryMap.set(category, []);
       }

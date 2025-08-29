@@ -83,6 +83,16 @@ export function useIngredients() {
     }
   }, []);
 
+  // Recherche par code-barres
+  const searchByBarcode = useCallback(async (barcode: string) => {
+    try {
+      return await ingredientService.searchByBarcode(barcode);
+    } catch (error) {
+      console.error('Erreur lors de la recherche par code-barres:', error);
+      return null;
+    }
+  }, []);
+
   // Filtrer les ingrédients
   useEffect(() => {
     let filtered = ingredients;
@@ -96,9 +106,10 @@ export function useIngredients() {
 
     // Filtrage par catégories sélectionnées
     if (filters.selectedCategories.length > 0 && !filters.selectedCategories.includes('Tous')) {
-      filtered = filtered.filter(ingredient =>
-        filters.selectedCategories.includes(ingredient.category)
-      );
+      filtered = filtered.filter(ingredient => {
+        const ingredientCategory = (ingredient as any).basicCategory || ingredient.category;
+        return filters.selectedCategories.includes(ingredientCategory);
+      });
     }
 
     // Maintenir l'ordre alphabétique après filtrage
@@ -123,6 +134,8 @@ export function useIngredients() {
     updateIngredient,
     deleteIngredient,
     loadIngredients,
-    searchIngredients
+    searchIngredients,
+    searchByBarcode,
+    refreshIngredients: loadIngredients
   };
 }

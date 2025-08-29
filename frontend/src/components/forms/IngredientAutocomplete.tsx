@@ -118,7 +118,7 @@ export default function IngredientAutocomplete({
               <div className="flex items-center justify-between">
                 <span className="font-medium text-slate-800 text-sm sm:text-base">{suggestion.name}</span>
                 <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full flex-shrink-0">
-                  {suggestion.category}
+                  {suggestion.basicCategory || suggestion.category}
                 </span>
               </div>
             </button>

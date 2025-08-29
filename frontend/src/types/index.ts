@@ -1,22 +1,17 @@
-// Types pour les ingrédients
+// Types pour les ingrédients (fusionné avec les données nutritionnelles)
 export interface Ingredient {
   id: number;
   name: string;
   category: string;
-}
-
-// Types pour les articles alimentaires avec données nutritionnelles
-export interface FoodItem {
-  id: number;
-  name: string;
+  
+  // Nouveaux champs nutritionnels (tous optionnels pour compatibilité)
   brand?: string;
   barcode?: string;
-  category: string;
-  basicCategory: string;
+  basicCategory?: string;
   openFoodFactsId?: string;
-  dataSource: 'MANUAL' | 'OPENFOODFACTS';
+  dataSource?: 'MANUAL' | 'OPENFOODFACTS';
   lastSync?: string;
-  createdAt: string;
+  createdAt?: string;
   updatedAt?: string;
   
   // Macronutriments (pour 100g, nullable)
@@ -66,6 +61,7 @@ export interface FoodItem {
   fluoride?: number; // mg
 }
 
+
 // Types pour les utilisateurs avec mode avancé
 export interface User {
   id: number;
@@ -113,7 +109,7 @@ export interface Category {
 // Types pour les requêtes API
 export interface IngredientRequest {
   name: string;
-  category: string;
+  basicCategory: string;
 }
 
 export interface RecipeRequest {

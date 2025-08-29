@@ -8,12 +8,12 @@ import lombok.Setter;
 public class IngredientRequest {
 
     private String name;
-    private String category;
+    private String basicCategory;
 
     public IngredientRequest() {}
 
-    public IngredientRequest(String name, String category) {
+    public IngredientRequest(String name, String basicCategory) {
         this.name = name;
-        this.category = category;
+        this.basicCategory = basicCategory;
     }
 }

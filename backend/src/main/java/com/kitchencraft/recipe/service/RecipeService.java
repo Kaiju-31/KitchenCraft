@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,7 +67,9 @@ public class RecipeService {
                         .orElseGet(() -> {
                             Ingredient newIng = new Ingredient();
                             newIng.setName(riReq.getIngredientName());
-                            newIng.setCategory(riReq.getIngredientCategory());
+                            newIng.setBasicCategory(riReq.getIngredientCategory());
+                            newIng.setDataSource("MANUAL");
+                            newIng.setCreatedAt(LocalDateTime.now());
                             return ingredientRepository.save(newIng);
                         });
 
@@ -101,7 +104,9 @@ public class RecipeService {
                         .orElseGet(() -> {
                             Ingredient newIng = new Ingredient();
                             newIng.setName(riReq.getIngredientName());
-                            newIng.setCategory(riReq.getIngredientCategory());
+                            newIng.setBasicCategory(riReq.getIngredientCategory());
+                            newIng.setDataSource("MANUAL");
+                            newIng.setCreatedAt(LocalDateTime.now());
                             return ingredientRepository.save(newIng);
                         });
 

@@ -6,7 +6,6 @@ import RecipeDetail from "./pages/RecipeDetail";
 import Ingredients from "./pages/Ingredients";
 import Planning from "./pages/Planning";
 import PlanningDetail from "./pages/PlanningDetail";
-import FoodItems from "./pages/FoodItems";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
@@ -72,10 +71,10 @@ export default function App() {
                         />
                         
                         <Route path="ingredients" element={<Ingredients />} />
+                        <Route path="ingredients/:id" element={<Ingredients />} />
+                        <Route path="ingredients/:id/:action" element={<Ingredients />} />
                         <Route path="planning" element={<Planning />} />
                         <Route path="planning/:id" element={<PlanningDetail />} />
-                        <Route path="food-items" element={<FoodItems />} />
-                        <Route path="food-items/:itemId" element={<FoodItems />} />
                         <Route path="profile" element={<Profile />} />
                     </Route>
 
