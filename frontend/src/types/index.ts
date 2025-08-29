@@ -97,6 +97,47 @@ export interface Recipe {
   isBabyFriendly?: boolean;
   ingredients: RecipeIngredient[];
   steps: string[];
+  
+  // Valeurs nutritionnelles (par portion selon le scaling)
+  totalEnergyKcal?: number;
+  totalCarbohydrates?: number;
+  totalSugars?: number;
+  totalFiber?: number;
+  totalFat?: number;
+  totalSaturatedFat?: number;
+  totalProtein?: number;
+  totalSalt?: number;
+  totalSodium?: number;
+  
+  // Vitamines (par portion selon le scaling)
+  totalVitaminA?: number;
+  totalVitaminB1?: number;
+  totalVitaminB2?: number;
+  totalVitaminB3?: number;
+  totalVitaminB5?: number;
+  totalVitaminB6?: number;
+  totalVitaminB7?: number;
+  totalVitaminB9?: number;
+  totalVitaminB12?: number;
+  totalVitaminC?: number;
+  totalVitaminD?: number;
+  totalVitaminE?: number;
+  totalVitaminK?: number;
+  
+  // Minéraux (par portion selon le scaling)
+  totalCalcium?: number;
+  totalIron?: number;
+  totalMagnesium?: number;
+  totalPhosphorus?: number;
+  totalPotassium?: number;
+  totalZinc?: number;
+  totalCopper?: number;
+  totalManganese?: number;
+  totalSelenium?: number;
+  totalIodine?: number;
+  totalChromium?: number;
+  totalMolybdenum?: number;
+  totalFluoride?: number;
 }
 
 // Types pour les catégories

@@ -623,6 +623,19 @@ export default function AdvancedIngredientForm({ isOpen, onClose, onSave, user, 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Sodium (mg)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    value={getNumberValue(formData.sodium)}
+                    onChange={(e) => handleNumberChange('sodium', e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
                     Zinc (mg)
                   </label>
                   <input

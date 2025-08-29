@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +58,7 @@ public class Recipe {
     @OrderColumn(name = "step_order")
     private List<String> steps = new ArrayList<>();
 
+
     // Méthode pour calculer automatiquement le temps total
     public void calculateTotalTime() {
         int total = 0;
@@ -65,6 +67,7 @@ public class Recipe {
         if (restTime != null) total += restTime;
         this.totalTime = total;
     }
+
 
     // Hook JPA pour calculer automatiquement avant sauvegarde
     @PrePersist

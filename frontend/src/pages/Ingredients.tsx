@@ -17,6 +17,7 @@ import AdvancedIngredientForm from '../components/forms/AdvancedIngredientForm';
 // Hooks
 import { useIngredients } from '../hooks/useIngredients';
 import { useKeyboard } from '../hooks/useKeyboard';
+import { useViewMode } from '../hooks/useViewMode';
 import { ingredientService } from '../services/ingredientService';
 import { authService } from '../services/authService';
 
@@ -56,7 +57,7 @@ export default function IngredientsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [viewMode, setViewMode] = useViewMode('viewMode-ingredients', 'grid');
 
   // Gérer l'URL dynamique pour la vue détaillée et l'édition
   useEffect(() => {

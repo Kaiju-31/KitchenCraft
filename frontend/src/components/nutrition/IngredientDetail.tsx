@@ -168,11 +168,11 @@ export default function IngredientDetail({ isOpen, onClose, onEdit, onDelete, on
                 {/* Macronutriments */}
                 {renderNutrientSection('Macronutriments', [
                   { label: 'Énergie', value: ingredient.energyKcal, unit: 'kcal' },
-                  { label: 'Glucides', value: ingredient.carbohydrates, unit: 'g' },
-                  { label: 'Sucres', value: ingredient.sugars, unit: 'g' },
-                  { label: 'Lipides', value: ingredient.fat, unit: 'g' },
-                  { label: 'Graisses saturées', value: ingredient.saturatedFat, unit: 'g' },
                   { label: 'Protéines', value: ingredient.protein, unit: 'g' },
+                  { label: 'Glucides', value: ingredient.carbohydrates, unit: 'g' },
+                  { label: 'dont sucres', value: ingredient.sugars, unit: 'g' },
+                  { label: 'Lipides', value: ingredient.fat, unit: 'g' },
+                  { label: 'dont saturés', value: ingredient.saturatedFat, unit: 'g' },
                   { label: 'Fibres', value: ingredient.fiber, unit: 'g' },
                   { label: 'Sel', value: ingredient.salt, unit: 'g' }
                 ], true)}
@@ -217,6 +217,7 @@ export default function IngredientDetail({ isOpen, onClose, onEdit, onDelete, on
                         { label: 'Magnésium', value: ingredient.magnesium, unit: 'mg' },
                         { label: 'Phosphore', value: ingredient.phosphorus, unit: 'mg' },
                         { label: 'Potassium', value: ingredient.potassium, unit: 'mg' },
+                        { label: 'Sodium', value: ingredient.sodium, unit: 'mg' },
                         { label: 'Zinc', value: ingredient.zinc, unit: 'mg' },
                         { label: 'Cuivre', value: ingredient.copper, unit: 'mg' },
                         { label: 'Manganèse', value: ingredient.manganese, unit: 'mg' },

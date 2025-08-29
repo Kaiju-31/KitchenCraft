@@ -32,6 +32,7 @@ export default function RecipeDetailModal({
   closeOnOutsideClick = true 
 }: RecipeDetailModalProps) {
   const [showNutritionDetails, setShowNutritionDetails] = useState(false);
+  const [showAdvancedNutrition, setShowAdvancedNutrition] = useState(false);
   
   useKeyboard({
     onEscape: onClose,
@@ -55,6 +56,28 @@ export default function RecipeDetailModal({
   };
 
   if (!isOpen || !recipe) return null;
+
+  const hasNutritionData = (recipe: Recipe) => {
+    return recipe.totalEnergyKcal || recipe.totalCarbohydrates || recipe.totalProtein || 
+           recipe.totalFat || recipe.totalFiber || recipe.totalSugars || 
+           recipe.totalSaturatedFat || recipe.totalSalt;
+  };
+
+  const hasVitaminsData = (recipe: Recipe) => {
+    return recipe.totalVitaminA || recipe.totalVitaminB1 || recipe.totalVitaminB2 || 
+           recipe.totalVitaminB3 || recipe.totalVitaminB5 || recipe.totalVitaminB6 || 
+           recipe.totalVitaminB7 || recipe.totalVitaminB9 || recipe.totalVitaminB12 || 
+           recipe.totalVitaminC || recipe.totalVitaminD || recipe.totalVitaminE || 
+           recipe.totalVitaminK;
+  };
+
+  const hasMineralsData = (recipe: Recipe) => {
+    return recipe.totalCalcium || recipe.totalIron || recipe.totalMagnesium || 
+           recipe.totalPhosphorus || recipe.totalPotassium || recipe.totalZinc || 
+           recipe.totalCopper || recipe.totalManganese || recipe.totalSelenium || 
+           recipe.totalIodine || recipe.totalChromium || recipe.totalMolybdenum || 
+           recipe.totalFluoride || recipe.totalSodium;
+  };
 
   const getTypeColor = (type: string) => {
     const recipeType = RECIPE_TYPES.find(t => t.value === type);
@@ -187,13 +210,13 @@ export default function RecipeDetailModal({
                 </div>
               </div>
 
-              {/* Zone future pour valeurs nutritionnelles */}
+              {/* Valeurs nutritionnelles */}
               <div className="mt-8">
                 <button
                   onClick={() => setShowNutritionDetails(!showNutritionDetails)}
                   className="flex items-center justify-between w-full p-3 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors duration-200"
                 >
-                  <span className="font-medium text-slate-700">Valeurs nutritionnelles (bientôt disponible)</span>
+                  <span className="font-medium text-slate-700">Valeurs nutritionnelles (par portion)</span>
                   {showNutritionDetails ? (
                     <ChevronUp className="w-5 h-5 text-slate-500" />
                   ) : (
@@ -203,9 +226,282 @@ export default function RecipeDetailModal({
                 
                 {showNutritionDetails && (
                   <div className="mt-4 p-4 bg-slate-50 rounded-lg">
-                    <p className="text-slate-500 text-center">
-                      Les valeurs nutritionnelles calculées automatiquement seront bientôt disponibles !
-                    </p>
+                    {hasNutritionData(recipe) ? (
+                      <>
+                        <div className="grid grid-cols-2 gap-4">
+                          {recipe.totalEnergyKcal && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Énergie</span>
+                              <span className="font-medium text-slate-800">{Math.round(recipe.totalEnergyKcal)} kcal</span>
+                            </div>
+                          )}
+                          {recipe.totalProtein && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Protéines</span>
+                              <span className="font-medium text-slate-800">{recipe.totalProtein.toFixed(1)} g</span>
+                            </div>
+                          )}
+                          {recipe.totalCarbohydrates && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Glucides</span>
+                              <span className="font-medium text-slate-800">{recipe.totalCarbohydrates.toFixed(1)} g</span>
+                            </div>
+                          )}
+                          {recipe.totalSugars && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">dont sucres</span>
+                              <span className="font-medium text-slate-800">{recipe.totalSugars.toFixed(1)} g</span>
+                            </div>
+                          )}
+                          {recipe.totalFat && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Lipides</span>
+                              <span className="font-medium text-slate-800">{recipe.totalFat.toFixed(1)} g</span>
+                            </div>
+                          )}
+                          {recipe.totalSaturatedFat && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">dont saturés</span>
+                              <span className="font-medium text-slate-800">{recipe.totalSaturatedFat.toFixed(1)} g</span>
+                            </div>
+                          )}
+                          {recipe.totalFiber && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Fibres</span>
+                              <span className="font-medium text-slate-800">{recipe.totalFiber.toFixed(1)} g</span>
+                            </div>
+                          )}
+                          {recipe.totalSalt && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Sel</span>
+                              <span className="font-medium text-slate-800">{recipe.totalSalt.toFixed(2)} g</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-4">
+                          <button
+                            onClick={() => setShowAdvancedNutrition(!showAdvancedNutrition)}
+                            className="flex items-center justify-between w-full p-3 bg-slate-200 hover:bg-slate-300 rounded-lg transition-colors duration-200"
+                          >
+                            <span className="font-medium text-slate-700">Plus de détails nutritionnels</span>
+                            {showAdvancedNutrition ? (
+                              <ChevronUp className="w-4 h-4 text-slate-500" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4 text-slate-500" />
+                            )}
+                          </button>
+                            
+                            {showAdvancedNutrition && (
+                              <div className="mt-4 space-y-4">
+                                {hasVitaminsData(recipe) ? (
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-slate-700 mb-3 border-b border-slate-300 pb-2">
+                                      Vitamines
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-3">
+                                      {recipe.totalVitaminA && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine A</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminA.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminB1 && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine B1</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminB1.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminB2 && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine B2</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminB2.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminB3 && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine B3</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminB3.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminB5 && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine B5</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminB5.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminB6 && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine B6</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminB6.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminB7 && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine B7</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminB7.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminB9 && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine B9</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminB9.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminB12 && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine B12</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminB12.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminC && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine C</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminC.toFixed(1)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminD && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine D</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminD.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminE && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine E</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminE.toFixed(1)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalVitaminK && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Vitamine K</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalVitaminK.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-slate-700 mb-3 border-b border-slate-300 pb-2">
+                                      Vitamines
+                                    </h4>
+                                    <p className="text-slate-500 text-sm">
+                                      Données non disponibles pour cette recette
+                                    </p>
+                                  </div>
+                                )}
+
+                                {hasMineralsData(recipe) ? (
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-slate-700 mb-3 border-b border-slate-300 pb-2">
+                                      Minéraux
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-3">
+                                      {recipe.totalCalcium && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Calcium</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalCalcium.toFixed(1)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalIron && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Fer</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalIron.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalMagnesium && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Magnésium</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalMagnesium.toFixed(1)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalPhosphorus && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Phosphore</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalPhosphorus.toFixed(1)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalPotassium && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Potassium</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalPotassium.toFixed(1)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalSodium && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Sodium</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalSodium.toFixed(1)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalZinc && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Zinc</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalZinc.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalCopper && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Cuivre</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalCopper.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalManganese && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Manganèse</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalManganese.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalSelenium && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Sélénium</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalSelenium.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalIodine && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Iode</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalIodine.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalChromium && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Chrome</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalChromium.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalMolybdenum && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Molybdène</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalMolybdenum.toFixed(1)} µg</span>
+                                        </div>
+                                      )}
+                                      {recipe.totalFluoride && (
+                                        <div className="flex justify-between text-sm">
+                                          <span className="text-slate-600">Fluorure</span>
+                                          <span className="font-medium text-slate-800">{recipe.totalFluoride.toFixed(2)} mg</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <h4 className="text-sm font-semibold text-slate-700 mb-3 border-b border-slate-300 pb-2">
+                                      Minéraux
+                                    </h4>
+                                    <p className="text-slate-500 text-sm">
+                                      Données non disponibles pour cette recette
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                      </>
+                    ) : (
+                      <p className="text-slate-500 text-center">
+                        Les valeurs nutritionnelles seront calculées automatiquement une fois que les ingrédients auront leurs données nutritionnelles.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
