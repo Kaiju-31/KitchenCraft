@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, Filter, Plus, X, ChefHat, RotateCcw, Eye, Edit, Trash2, Calendar, Clock, Users, Baby } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { Search, Filter, Plus, X, ChefHat, RotateCcw, Calendar, Clock, Users, Baby } from 'lucide-react';
 import type { Recipe, Ingredient, RecipeView, RecipeRequest, ViewMode } from '../types';
 import { useViewMode } from '../hooks/useViewMode';
 import { RECIPE_TYPES } from '../types';
@@ -33,14 +33,18 @@ import BabyFriendlyFilter from '../components/ui/BabyFriendlyFilter';
 import ViewModeToggle from '../components/ui/ViewModeToggle';
 import ItemList from '../components/ui/ItemList';
 import AddToPlanModal from '../components/planning/AddToPlanModal';
+import RecipeDetailModal from '../components/recipe/RecipeDetailModal';
 
 export default function Recipes() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { id } = useParams();
   
   const [currentView, setCurrentView] = useState<RecipeView>('list');
   const [viewMode, setViewMode] = useViewMode('viewMode-recipes', 'grid');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
+  const [modalScaledPerson, setModalScaledPerson] = useState<number>(4);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   // Utiliser filters.selectedIngredients comme source de vérité
@@ -96,6 +100,7 @@ export default function Recipes() {
   const loading = recipesLoading || ingredientsLoading || originsLoading;
   const error = recipesError;
 
+
   // Charger les recettes populaires au montage
   useEffect(() => {
     const fetchPopularRecipes = async () => {
@@ -142,14 +147,57 @@ export default function Recipes() {
     }
   }, [filters.isBabyFriendly, filterRecipes]);
 
+  const handleViewRecipe = useCallback(async (recipe: Recipe) => {
+    try {
+      // Toujours récupérer la recette avec son nombre de personnes original
+      const detailedRecipe = await getRecipeById(recipe.id, recipe.person);
+      if (detailedRecipe) {
+        setSelectedRecipe(detailedRecipe);
+        // Reset le scaling modal au nombre de personnes de la recette
+        setModalScaledPerson(detailedRecipe.person);
+        // Update URL for navigation support
+        navigate(`/recipes/${recipe.id}`, { replace: false });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la recette:', error);
+    }
+  }, [getRecipeById, navigate]);
+
+  // Gérer l'ouverture de modal via URL
+  useEffect(() => {
+    if (id && recipes.length > 0 && !isClosing) {
+      const recipeId = parseInt(id, 10);
+      // Si on a un ID dans l'URL mais pas la bonne recette sélectionnée
+      if (!selectedRecipe || selectedRecipe.id !== recipeId) {
+        const recipe = recipes.find(r => r.id === recipeId);
+        if (recipe) {
+          // Appel direct avec le nombre de personnes original de la recette
+          getRecipeById(recipe.id, recipe.person).then(detailedRecipe => {
+            if (detailedRecipe) {
+              setSelectedRecipe(detailedRecipe);
+              // Reset le scaling modal au nombre de personnes de la recette
+              setModalScaledPerson(detailedRecipe.person);
+            }
+          }).catch(error => {
+            console.error('Erreur lors de la récupération de la recette:', error);
+          });
+        }
+      }
+    }
+    // Réinitialiser le flag de fermeture quand l'ID change
+    if (!id && isClosing) {
+      setIsClosing(false);
+    }
+  }, [id, recipes, selectedRecipe?.id, getRecipeById, isClosing]);
+
   const handlePopularRecipeSelect = (recipeName: string) => {
     // Naviguer vers la route de recherche optimisée
     navigateToRecipeSearchByName(navigate, recipeName, { scaledPerson });
   };
 
-  const handleViewRecipe = (recipe: Recipe) => {
-    // Naviguer vers la page détail de la recette
-    navigate(`/recipes/${recipe.id}`);
+  const handleModalScaledPersonChange = (person: number) => {
+    setModalScaledPerson(person);
+    // Pas besoin de recharger la recette, le scaling se fait côté frontend
   };
 
   const handleEditRecipe = (recipe: Recipe) => {
@@ -384,88 +432,19 @@ export default function Recipes() {
       subtitle: description,
       metadata: metadata,
       onClick: () => handleViewRecipe(recipe),
-      // Actions mobile : seul bouton planning
-      mobileActions: (
-        <div className="flex space-x-2 justify-center">
-          {handleAddToPlan && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddToPlan(recipe);
-              }}
-              className="min-w-10 min-h-10 flex items-center justify-center bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200 touch-manipulation"
-              title="Ajouter au planning"
-            >
-              <Calendar className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      ),
-      // Actions tablette : seul bouton planning
-      tabletActions: (
-        <div className="flex space-x-2 justify-center">
-          {handleAddToPlan && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddToPlan(recipe);
-              }}
-              className="min-w-10 min-h-10 flex items-center justify-center bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200 touch-manipulation"
-              title="Ajouter au planning"
-            >
-              <Calendar className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      ),
-      // Actions desktop : tous les boutons
-      actions: (
-        <div className="flex space-x-2 justify-center">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleViewRecipe(recipe);
-            }}
-            className="min-w-10 min-h-10 flex items-center justify-center bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 touch-manipulation"
-            title="Voir"
-          >
-            <Eye className="w-4 h-4" />
-          </button>
-          {handleAddToPlan && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddToPlan(recipe);
-              }}
-              className="min-w-10 min-h-10 flex items-center justify-center bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200 touch-manipulation"
-              title="Ajouter au planning"
-            >
-              <Calendar className="w-4 h-4" />
-            </button>
-          )}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEditRecipe(recipe);
-            }}
-            className="min-w-10 min-h-10 flex items-center justify-center bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 touch-manipulation"
-            title="Modifier"
-          >
-            <Edit className="w-4 h-4" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              const recipe_found = recipes.find(r => r.id === recipe.id);
-              handleDeleteRecipe(recipe.id, recipe_found?.name);
-            }}
-            className="min-w-10 min-h-10 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 touch-manipulation"
-            title="Supprimer"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      )
+      // Actions unifiées : seul bouton planning sur tous les écrans
+      actions: handleAddToPlan ? (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAddToPlan(recipe);
+          }}
+          className="min-w-10 min-h-10 flex items-center justify-center bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200 touch-manipulation"
+          title="Ajouter au planning"
+        >
+          <Calendar className="w-4 h-4" />
+        </button>
+      ) : null
     };
   });
 
@@ -775,6 +754,38 @@ export default function Recipes() {
           recipe={recipeToAddToPlan}
         />
       )}
+
+      {/* Modal de détail de recette */}
+      <RecipeDetailModal
+        isOpen={!!selectedRecipe}
+        closeOnOutsideClick={true}
+        onClose={() => {
+          setIsClosing(true);
+          setSelectedRecipe(null);
+          navigate('/recipes', { replace: true });
+        }}
+        onEdit={() => {
+          if (selectedRecipe) {
+            setIsClosing(true);
+            setEditingRecipe(selectedRecipe);
+            setCurrentView('edit');
+            setSelectedRecipe(null);
+            navigate('/recipes', { replace: true });
+          }
+        }}
+        onDelete={() => {
+          if (selectedRecipe) {
+            setIsClosing(true);
+            handleDeleteRecipe(selectedRecipe.id, selectedRecipe.name);
+            setSelectedRecipe(null);
+            navigate('/recipes', { replace: true });
+          }
+        }}
+        recipe={selectedRecipe}
+        user={null}
+        scaledPerson={modalScaledPerson}
+        onScaledPersonChange={handleModalScaledPersonChange}
+      />
     </div>
   );
 }

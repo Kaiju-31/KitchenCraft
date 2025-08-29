@@ -77,7 +77,7 @@ export default function IngredientDetail({ isOpen, onClose, onEdit, onDelete, on
     >
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-slate-200 bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+        <div className="flex justify-between items-center p-6 border-b border-slate-200 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <div className="flex items-center space-x-3">
             <Package className="w-6 h-6" />
             <div>
@@ -89,7 +89,7 @@ export default function IngredientDetail({ isOpen, onClose, onEdit, onDelete, on
           </div>
           <div className="flex items-center space-x-2">
             {onEdit && (
-              <Button onClick={onEdit} variant="outline" className="text-white border-white hover:bg-white hover:text-purple-600">
+              <Button onClick={onEdit} variant="outline" className="text-white border-white hover:bg-white hover:text-emerald-600">
                 Modifier
               </Button>
             )}
@@ -120,7 +120,7 @@ export default function IngredientDetail({ isOpen, onClose, onEdit, onDelete, on
             {/* Informations générales */}
             <div>
               <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                <Info className="w-5 h-5 mr-2 text-purple-600" />
+                <Info className="w-5 h-5 mr-2 text-emerald-600" />
                 Informations générales
               </h3>
               

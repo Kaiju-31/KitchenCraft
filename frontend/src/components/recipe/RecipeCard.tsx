@@ -1,4 +1,4 @@
-import { Clock, Users, MapPin, Eye, Edit, Trash2, Calendar, Baby } from 'lucide-react';
+import { Clock, Users, MapPin, Calendar, Baby } from 'lucide-react';
 import type { Recipe } from '../../types';
 import { RECIPE_TYPES } from '../../types';
 import { formatTimeDisplay } from '../../utils/timeUtils';
@@ -6,8 +6,6 @@ import { formatTimeDisplay } from '../../utils/timeUtils';
 interface RecipeCardProps {
   recipe: Recipe;
   onView?: (recipe: Recipe) => void;
-  onEdit?: (recipe: Recipe) => void;
-  onDelete?: (id: number) => void;
   onAddToPlan?: (recipe: Recipe) => void;
   className?: string;
 }
@@ -15,8 +13,6 @@ interface RecipeCardProps {
 export default function RecipeCard({
   recipe,
   onView,
-  onEdit,
-  onDelete,
   onAddToPlan,
   className = ""
 }: RecipeCardProps) {
@@ -109,45 +105,18 @@ export default function RecipeCard({
       </div>
 
       {/* Actions */}
-      <div className="flex justify-between items-center pt-4 border-t border-slate-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
-        <button
-          onClick={() => onView?.(recipe)}
-          className="flex items-center space-x-2 px-4 py-2 min-h-11 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors duration-200 text-sm font-medium"
-        >
-          <Eye className="w-4 h-4" />
-          <span>Voir</span>
-        </button>
-
-        <div className="flex space-x-2">
-          {onAddToPlan && (
-            <button
-              onClick={() => onAddToPlan(recipe)}
-              className="min-w-11 min-h-11 flex items-center justify-center bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200"
-              title="Ajouter au planning"
-            >
-              <Calendar className="w-5 h-5" />
-            </button>
-          )}
-          {onEdit && (
-            <button
-              onClick={() => onEdit(recipe)}
-              className="min-w-11 min-h-11 flex items-center justify-center bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
-              title="Modifier"
-            >
-              <Edit className="w-5 h-5" />
-            </button>
-          )}
-          {onDelete && (
-            <button
-              onClick={() => onDelete(recipe.id)}
-              className="min-w-11 min-h-11 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
-              title="Supprimer"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          )}
+      {onAddToPlan && (
+        <div className="flex justify-center pt-4 border-t border-slate-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200">
+          <button
+            onClick={() => onAddToPlan(recipe)}
+            className="flex items-center space-x-2 px-4 py-2 min-h-11 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors duration-200 text-sm font-medium"
+            title="Ajouter au planning"
+          >
+            <Calendar className="w-5 h-5" />
+            <span>Ajouter au planning</span>
+          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

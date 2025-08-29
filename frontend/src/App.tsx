@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Layout from "./layout/Layout";
 import Recipes from "./pages/Recipes";
-import RecipeDetail from "./pages/RecipeDetail";
 import Ingredients from "./pages/Ingredients";
 import Planning from "./pages/Planning";
 import PlanningDetail from "./pages/PlanningDetail";
@@ -42,7 +41,7 @@ export default function App() {
                     >
                         <Route path="" element={<Navigate to="recipes" replace />} />
                         <Route path="recipes" element={<Recipes />} />
-                        <Route path="recipes/:id" element={<RecipeDetail />} />
+                        <Route path="recipes/:id" element={<Recipes />} />
                         
                         {/* Routes de recherche avec lazy loading */}
                         <Route 
