@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -32,5 +34,14 @@ public class AuthController {
     public ResponseEntity<JwtAuthenticationResponse> registerAdmin(@Valid @RequestBody RegisterRequest request) {
         JwtAuthenticationResponse response = authService.registerAdmin(request);
         return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/signup-status")
+    public ResponseEntity<Map<String, Object>> getSignupStatus() {
+        boolean enabled = authService.isSignupEnabled();
+        return ResponseEntity.ok(Map.of(
+            "enabled", enabled,
+            "message", enabled ? "User registration is enabled" : "User registration is disabled"
+        ));
     }
 }

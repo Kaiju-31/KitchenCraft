@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { adminService } from '../services/adminService';
 import Button from '../components/ui/Button';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
@@ -15,9 +16,33 @@ const SignUp: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [signupEnabled, setSignupEnabled] = useState<boolean | null>(null);
+  const [isCheckingSignup, setIsCheckingSignup] = useState(true);
 
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    checkSignupStatus();
+  }, []);
+
+  const checkSignupStatus = async () => {
+    try {
+      const response = await fetch('/api/auth/signup-status');
+      if (response.ok) {
+        const data = await response.json();
+        setSignupEnabled(data.enabled);
+      } else {
+        // Si l'endpoint n'est pas accessible, on assume que signup est activé
+        setSignupEnabled(true);
+      }
+    } catch (err) {
+      // En cas d'erreur, on assume que signup est activé
+      setSignupEnabled(true);
+    } finally {
+      setIsCheckingSignup(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -110,6 +135,55 @@ const SignUp: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  if (isCheckingSignup) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <LoadingSpinner size="large" text="Vérification des inscriptions..." />
+        </div>
+      </div>
+    );
+  }
+
+  if (signupEnabled === false) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
+            Inscriptions fermées
+          </h2>
+          <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <div className="flex">
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-yellow-800">
+                      Inscriptions temporairement fermées
+                    </h3>
+                    <div className="mt-2 text-sm text-yellow-700">
+                      <p>
+                        Les nouvelles inscriptions ne sont pas acceptées actuellement. 
+                        Veuillez réessayer ultérieurement.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 text-center">
+                <Link
+                  to="/login"
+                  className="font-medium text-blue-600 hover:text-blue-500"
+                >
+                  Retour à la connexion
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -233,7 +307,7 @@ const SignUp: React.FC = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="At least 8 characters"
+                  placeholder="At least 12 characters"
                   disabled={isSubmitting}
                 />
               </div>

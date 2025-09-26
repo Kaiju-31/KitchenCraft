@@ -6,7 +6,7 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
   const [error, setError] = useState('');
@@ -31,13 +31,13 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (!formData.username || !formData.password) {
+    if (!formData.email || !formData.password) {
       setError('Please fill in all fields');
       return;
     }
 
-    if (formData.username.length < 3) {
-      setError('Username must be at least 3 characters long');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Please enter a valid email address');
       return;
     }
 
@@ -85,20 +85,20 @@ const Login: React.FC = () => {
             )}
 
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
               </label>
               <div className="mt-1">
                 <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  autoComplete="username"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
                   required
-                  value={formData.username}
+                  value={formData.email}
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter your username"
+                  placeholder="Enter your email address"
                   disabled={isSubmitting}
                 />
               </div>

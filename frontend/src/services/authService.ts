@@ -1,5 +1,5 @@
 export interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -70,13 +70,24 @@ export const authService = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Login failed');
+      let errorMessage = 'Login failed';
+      try {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } catch (e) {
+        // Si la réponse n'est pas du JSON, utiliser le status text
+        errorMessage = `Login failed (${response.status}): ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
-    setAuthToken(data.token);
-    return data;
+    try {
+      const data = await response.json();
+      setAuthToken(data.token);
+      return data;
+    } catch (e) {
+      throw new Error('Invalid server response format');
+    }
   },
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
@@ -89,13 +100,24 @@ export const authService = {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Registration failed');
+      let errorMessage = 'Registration failed';
+      try {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } catch (e) {
+        // Si la réponse n'est pas du JSON, utiliser le status text
+        errorMessage = `Registration failed (${response.status}): ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
 
-    const data = await response.json();
-    setAuthToken(data.token);
-    return data;
+    try {
+      const data = await response.json();
+      setAuthToken(data.token);
+      return data;
+    } catch (e) {
+      throw new Error('Invalid server response format');
+    }
   },
 
   async getCurrentUser(): Promise<User> {
@@ -112,11 +134,22 @@ export const authService = {
         removeAuthToken();
         throw new Error('Session expired');
       }
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to fetch user profile');
+      
+      let errorMessage = 'Failed to fetch user profile';
+      try {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } catch (e) {
+        errorMessage = `Failed to fetch user profile (${response.status}): ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
 
-    return response.json();
+    try {
+      return await response.json();
+    } catch (e) {
+      throw new Error('Invalid server response format');
+    }
   },
 
   async updateProfile(profileData: UpdateProfileRequest): Promise<User> {

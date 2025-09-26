@@ -14,10 +14,13 @@ import {
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [orphanIngredients, setOrphanIngredients] = useState<string[]>([]);
+  const [signupEnabled, setSignupEnabled] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isCleanupLoading, setIsCleanupLoading] = useState(false);
+  const [isSignupLoading, setIsSignupLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cleanupMessage, setCleanupMessage] = useState<string | null>(null);
+  const [signupMessage, setSignupMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadDashboardData();
@@ -26,13 +29,15 @@ export default function AdminDashboard() {
   const loadDashboardData = async () => {
     try {
       setIsLoading(true);
-      const [statsData, orphansData] = await Promise.all([
+      const [statsData, orphansData, signupStatus] = await Promise.all([
         adminService.getStats(),
-        adminService.getOrphanIngredients()
+        adminService.getOrphanIngredients(),
+        adminService.getSignupStatus()
       ]);
       
       setStats(statsData);
       setOrphanIngredients(orphansData);
+      setSignupEnabled(signupStatus.enabled);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement');
@@ -53,6 +58,20 @@ export default function AdminDashboard() {
       setError(err instanceof Error ? err.message : 'Erreur lors du nettoyage');
     } finally {
       setIsCleanupLoading(false);
+    }
+  };
+
+  const handleSignupToggle = async () => {
+    try {
+      setIsSignupLoading(true);
+      setSignupMessage(null);
+      const result = await adminService.updateSignupStatus(!signupEnabled);
+      setSignupEnabled(result.enabled);
+      setSignupMessage(result.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la modification du signup');
+    } finally {
+      setIsSignupLoading(false);
     }
   };
 
@@ -147,6 +166,12 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {signupMessage && (
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <p className="text-sm text-blue-700">{signupMessage}</p>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
           {statsCards.map((card) => {
@@ -177,7 +202,57 @@ export default function AdminDashboard() {
           })}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Configuration Signup */}
+          <div className="bg-white shadow rounded-lg">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Gestion des Inscriptions
+              </h3>
+              
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-gray-700">
+                    Statut des inscriptions
+                  </span>
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                    signupEnabled 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {signupEnabled ? 'Activé' : 'Désactivé'}
+                  </span>
+                </div>
+                
+                <p className="text-sm text-gray-600 mb-4">
+                  {signupEnabled 
+                    ? 'Les nouveaux utilisateurs peuvent s\'inscrire sur la plateforme.'
+                    : 'Les inscriptions sont actuellement fermées.'
+                  }
+                </p>
+                
+                <button
+                  onClick={handleSignupToggle}
+                  disabled={isSignupLoading}
+                  className={`w-full px-4 py-2 rounded-md text-sm font-medium ${
+                    signupEnabled
+                      ? 'bg-red-600 text-white hover:bg-red-700'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {isSignupLoading ? (
+                    <div className="flex items-center justify-center">
+                      <LoadingSpinner size="small" />
+                      <span className="ml-2">Modification...</span>
+                    </div>
+                  ) : (
+                    signupEnabled ? 'Désactiver les inscriptions' : 'Activer les inscriptions'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Informations Système */}
           <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
