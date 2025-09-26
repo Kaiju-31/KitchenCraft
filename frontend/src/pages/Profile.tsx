@@ -4,6 +4,7 @@ import { authService } from '../services/authService';
 import type { UpdateProfileRequest, ChangePasswordRequest } from '../services/authService';
 import Button from '../components/ui/Button';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import PasswordInput from '../components/ui/PasswordInput';
 
 const Profile: React.FC = () => {
   const { user, refreshUser } = useAuth();
@@ -311,14 +312,14 @@ const Profile: React.FC = () => {
                   <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
                     Current Password
                   </label>
-                  <input
-                    type="password"
-                    name="currentPassword"
+                  <PasswordInput
                     id="currentPassword"
+                    name="currentPassword"
                     value={passwordData.currentPassword}
                     onChange={handlePasswordChange}
                     disabled={isLoading}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:opacity-50"
+                    placeholder="Enter your current password"
+                    className="mt-1"
                   />
                 </div>
 
@@ -326,14 +327,14 @@ const Profile: React.FC = () => {
                   <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
                     New Password
                   </label>
-                  <input
-                    type="password"
-                    name="newPassword"
+                  <PasswordInput
                     id="newPassword"
+                    name="newPassword"
                     value={passwordData.newPassword}
                     onChange={handlePasswordChange}
                     disabled={isLoading}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:opacity-50"
+                    placeholder="At least 12 characters"
+                    className="mt-1"
                   />
                   <p className="mt-1 text-xs text-gray-500">
                     Must contain at least one uppercase, lowercase, digit, and special character
@@ -344,14 +345,14 @@ const Profile: React.FC = () => {
                   <label htmlFor="confirmNewPassword" className="block text-sm font-medium text-gray-700">
                     Confirm New Password
                   </label>
-                  <input
-                    type="password"
-                    name="confirmNewPassword"
+                  <PasswordInput
                     id="confirmNewPassword"
+                    name="confirmNewPassword"
                     value={confirmNewPassword}
                     onChange={handlePasswordChange}
                     disabled={isLoading}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:opacity-50"
+                    placeholder="Confirm your new password"
+                    className="mt-1"
                   />
                 </div>
 

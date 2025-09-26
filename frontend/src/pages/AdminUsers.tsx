@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import { adminService } from '../services/adminService';
-import type { AdminUser } from '../services/adminService';
+import type { AdminUser, CreateUserRequest, EditUserRequest } from '../services/adminService';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import CreateUserModal from '../components/admin/CreateUserModal';
+import EditUserModal from '../components/admin/EditUserModal';
+import Button from '../components/ui/Button';
 import {
   Trash2,
   User,
   Shield,
   AlertTriangle,
+  Plus,
+  Edit,
 } from 'lucide-react';
 
 export default function AdminUsers() {
@@ -16,6 +21,9 @@ export default function AdminUsers() {
   const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -73,6 +81,49 @@ export default function AdminUsers() {
     }
   };
 
+  const handleCreateUser = async (userData: CreateUserRequest) => {
+    try {
+      const newUser = await adminService.createUser(userData);
+      setUsers([...users, newUser]);
+      setSuccessMessage(`Utilisateur "${userData.username}" créé avec succès`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
+      setError(errorMessage);
+      throw err; // Re-throw to let the modal handle it
+    }
+  };
+
+  const handleUserCreated = () => {
+    // This is called when the modal closes after successful creation
+    // The success message is already set in handleCreateUser
+  };
+
+  const handleEditUser = (user: AdminUser) => {
+    setEditingUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateUser = async (userId: number, userData: EditUserRequest) => {
+    try {
+      const updatedUser = await adminService.updateUser(userId, userData);
+      setUsers(users.map(user => 
+        user.id === userId ? updatedUser : user
+      ));
+      setSuccessMessage(`Utilisateur "${userData.username}" mis à jour avec succès`);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la mise à jour';
+      setError(errorMessage);
+      throw err; // Re-throw to let the modal handle it
+    }
+  };
+
+  const handleUserUpdated = () => {
+    // This is called when the modal closes after successful update
+    // The success message is already set in handleUpdateUser
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -107,11 +158,20 @@ export default function AdminUsers() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Gestion des Utilisateurs</h1>
-          <p className="mt-2 text-gray-600">
-            Gérer les comptes utilisateurs et leurs permissions
-          </p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Gestion des Utilisateurs</h1>
+            <p className="mt-2 text-gray-600">
+              Gérer les comptes utilisateurs et leurs permissions
+            </p>
+          </div>
+          <Button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Créer un utilisateur
+          </Button>
         </div>
 
         {/* Messages */}
@@ -182,6 +242,15 @@ export default function AdminUsers() {
                     
                     <div className="flex items-center space-x-2">
                       <button
+                        onClick={() => handleEditUser(user)}
+                        disabled={isUpdating || isDeleting}
+                        className="bg-blue-600 text-white px-3 py-1 text-sm rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Modifier
+                      </button>
+                      
+                      <button
                         onClick={() => handleRoleUpdate(user.id, primaryRole)}
                         disabled={isUpdating || isDeleting}
                         className="bg-indigo-600 text-white px-3 py-1 text-sm rounded-md hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
@@ -221,6 +290,23 @@ export default function AdminUsers() {
             </div>
           )}
         </div>
+
+        {/* Create User Modal */}
+        <CreateUserModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onUserCreated={handleUserCreated}
+          onCreateUser={handleCreateUser}
+        />
+
+        {/* Edit User Modal */}
+        <EditUserModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onUserUpdated={handleUserUpdated}
+          onUpdateUser={handleUpdateUser}
+          user={editingUser}
+        />
       </div>
     </div>
   );

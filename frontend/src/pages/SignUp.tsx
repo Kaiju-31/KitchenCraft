@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { adminService } from '../services/adminService';
 import Button from '../components/ui/Button';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import PasswordInput from '../components/ui/PasswordInput';
 
 const SignUp: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -298,17 +299,14 @@ const SignUp: React.FC = () => {
                 Password
               </label>
               <div className="mt-1">
-                <input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="At least 12 characters"
                   disabled={isSubmitting}
+                  placeholder="At least 12 characters"
+                  className="appearance-none"
                 />
               </div>
               <p className="mt-1 text-xs text-gray-500">
@@ -321,17 +319,14 @@ const SignUp: React.FC = () => {
                 Confirm Password
               </label>
               <div className="mt-1">
-                <input
+                <PasswordInput
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Confirm your password"
                   disabled={isSubmitting}
+                  placeholder="Confirm your password"
+                  className="appearance-none"
                 />
               </div>
             </div>

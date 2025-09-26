@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/ui/Button';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import PasswordInput from '../components/ui/PasswordInput';
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -109,17 +110,14 @@ const Login: React.FC = () => {
                 Password
               </label>
               <div className="mt-1">
-                <input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter your password"
                   disabled={isSubmitting}
+                  placeholder="Enter your password"
+                  className="appearance-none"
                 />
               </div>
             </div>
