@@ -26,6 +26,21 @@ interface UpdateRoleRequest {
   roleName: 'ROLE_USER' | 'ROLE_ADMIN';
 }
 
+interface CreateUserRequest {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  password: string;
+  roles: string[];
+}
+
+interface EditUserRequest {
+  username: string;
+  email: string;
+  password?: string;
+}
+
 const API_BASE_URL = '/api/admin';
 
 class AdminService {
@@ -57,6 +72,30 @@ class AdminService {
     return response.json();
   }
 
+  async createUser(userData: CreateUserRequest): Promise<AdminUser> {
+    const response = await fetch(`${API_BASE_URL}/users/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(userData),
+    });
+    
+    if (!response.ok) {
+      let errorMessage = 'Erreur lors de la création de l\'utilisateur';
+      try {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } catch (e) {
+        errorMessage = `Erreur lors de la création (${response.status}): ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
+    }
+    
+    return response.json();
+  }
+
   async updateUserRole(userId: number, roleName: 'ROLE_USER' | 'ROLE_ADMIN'): Promise<AdminUser> {
     const response = await fetch(`${API_BASE_URL}/users/${userId}/role`, {
       method: 'PUT',
@@ -69,6 +108,30 @@ class AdminService {
     
     if (!response.ok) {
       throw new Error('Erreur lors de la mise à jour du rôle');
+    }
+    
+    return response.json();
+  }
+
+  async updateUser(userId: number, userData: EditUserRequest): Promise<AdminUser> {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/edit`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify(userData),
+    });
+    
+    if (!response.ok) {
+      let errorMessage = 'Erreur lors de la mise à jour de l\'utilisateur';
+      try {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } catch (e) {
+        errorMessage = `Erreur lors de la mise à jour (${response.status}): ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
     
     return response.json();
@@ -155,4 +218,4 @@ class AdminService {
 const adminService = new AdminService();
 
 export { adminService };
-export type { AdminUser, AdminStats, UpdateRoleRequest };
+export type { AdminUser, AdminStats, UpdateRoleRequest, CreateUserRequest, EditUserRequest };

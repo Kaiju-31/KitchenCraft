@@ -6,6 +6,7 @@ import com.kitchencraft.recipe.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,16 @@ public class AdminController {
     }
 
     /**
+     * Crée un nouveau utilisateur
+     */
+    @PostMapping("/users/create")
+    public ResponseEntity<AdminUserDto> createUser(@Valid @RequestBody CreateUserRequest request) {
+        log.info("Admin request: Create new user with username: {}", request.getUsername());
+        AdminUserDto createdUser = adminService.createUser(request);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    }
+
+    /**
      * Met à jour le rôle d'un utilisateur
      */
     @PutMapping("/users/{userId}/role")
@@ -42,6 +53,18 @@ public class AdminController {
             @Valid @RequestBody UpdateUserRoleRequest request) {
         log.info("Admin request: Update user {} role to {}", userId, request.getRoleName());
         AdminUserDto updatedUser = adminService.updateUserRole(userId, request.getRoleName());
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    /**
+     * Met à jour un utilisateur
+     */
+    @PutMapping("/users/{userId}/edit")
+    public ResponseEntity<AdminUserDto> updateUser(
+            @PathVariable Long userId,
+            @Valid @RequestBody EditUserRequest request) {
+        log.info("Admin request: Update user {} with username: {}", userId, request.getUsername());
+        AdminUserDto updatedUser = adminService.updateUser(userId, request);
         return ResponseEntity.ok(updatedUser);
     }
 
