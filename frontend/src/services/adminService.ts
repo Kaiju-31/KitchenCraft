@@ -121,6 +121,35 @@ class AdminService {
     
     return response.json();
   }
+
+  async getSignupStatus(): Promise<{ enabled: boolean; message: string }> {
+    const response = await fetch(`${API_BASE_URL}/signup-status`, {
+      headers: this.getAuthHeaders(),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Erreur lors de la récupération du statut du signup');
+    }
+    
+    return response.json();
+  }
+
+  async updateSignupStatus(enabled: boolean): Promise<{ enabled: boolean; message: string; timestamp: string }> {
+    const response = await fetch(`${API_BASE_URL}/signup-status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.getAuthHeaders(),
+      },
+      body: JSON.stringify({ enabled }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Erreur lors de la mise à jour du statut du signup');
+    }
+    
+    return response.json();
+  }
 }
 
 const adminService = new AdminService();

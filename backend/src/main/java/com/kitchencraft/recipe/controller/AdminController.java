@@ -2,6 +2,7 @@ package com.kitchencraft.recipe.controller;
 
 import com.kitchencraft.recipe.dto.*;
 import com.kitchencraft.recipe.service.AdminService;
+import com.kitchencraft.recipe.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService adminService;
+    private final AuthService authService;
 
     /**
      * Récupère tous les utilisateurs du système
@@ -97,6 +99,36 @@ public class AdminController {
     public ResponseEntity<Map<String, String>> adminTest() {
         return ResponseEntity.ok(Map.of(
             "message", "Admin access confirmed",
+            "timestamp", java.time.LocalDateTime.now().toString()
+        ));
+    }
+
+    /**
+     * Récupère le statut du signup (activé/désactivé)
+     */
+    @GetMapping("/signup-status")
+    public ResponseEntity<Map<String, Object>> getSignupStatus() {
+        log.info("Admin request: Get signup status");
+        boolean enabled = authService.isSignupEnabled();
+        return ResponseEntity.ok(Map.of(
+            "enabled", enabled,
+            "message", enabled ? "User registration is enabled" : "User registration is disabled"
+        ));
+    }
+
+    /**
+     * Active ou désactive le signup
+     */
+    @PutMapping("/signup-status")
+    public ResponseEntity<Map<String, Object>> updateSignupStatus(@RequestBody Map<String, Boolean> request) {
+        boolean enabled = request.getOrDefault("enabled", true);
+        log.info("Admin request: Update signup status to {}", enabled);
+        
+        authService.setSignupEnabled(enabled);
+        
+        return ResponseEntity.ok(Map.of(
+            "enabled", enabled,
+            "message", enabled ? "User registration has been enabled" : "User registration has been disabled",
             "timestamp", java.time.LocalDateTime.now().toString()
         ));
     }

@@ -1,5 +1,6 @@
 package com.kitchencraft.recipe.service;
 
+import com.kitchencraft.recipe.config.AppConfig;
 import com.kitchencraft.recipe.dto.*;
 import com.kitchencraft.recipe.exception.BusinessException;
 import com.kitchencraft.recipe.mapper.UserMapper;
@@ -27,9 +28,14 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper;
+    private final AppConfig appConfig;
     
     @Transactional
     public JwtAuthenticationResponse register(RegisterRequest request) {
+        if (!appConfig.getSignup().isEnabled()) {
+            throw new BusinessException("User registration is currently disabled");
+        }
+        
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new BusinessException("Username is already taken!");
         }
@@ -57,19 +63,26 @@ public class AuthService {
     }
     
     public JwtAuthenticationResponse authenticate(LoginRequest request) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getUsername(),
-                request.getPassword()
-            )
-        );
+        try {
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    request.getEmail(),
+                    request.getPassword()
+                )
+            );
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            throw new BusinessException("Invalid email or password");
+        }
         
-        User user = userRepository.findByUsername(request.getUsername())
+        User user = userRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new BusinessException("User not found"));
         
-        String jwt = jwtService.generateToken(user);
-        
-        return new JwtAuthenticationResponse(jwt, userMapper.toDto(user));
+        try {
+            String jwt = jwtService.generateToken(user);
+            return new JwtAuthenticationResponse(jwt, userMapper.toDto(user));
+        } catch (Exception e) {
+            throw new BusinessException("Failed to generate authentication token");
+        }
     }
     
     @Transactional
@@ -98,5 +111,13 @@ public class AuthService {
         String jwt = jwtService.generateToken(savedUser);
         
         return new JwtAuthenticationResponse(jwt, userMapper.toDto(savedUser));
+    }
+    
+    public boolean isSignupEnabled() {
+        return appConfig.getSignup().isEnabled();
+    }
+    
+    public void setSignupEnabled(boolean enabled) {
+        appConfig.getSignup().setEnabled(enabled);
     }
 }

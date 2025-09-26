@@ -34,7 +34,7 @@ async function createAdmin() {
   };
 
   try {
-    const response = await fetch(`${BASE_URL}/auth/register`, {
+    const response = await fetch(`${BASE_URL}/auth/register-admin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -76,7 +76,7 @@ async function testLogin() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        username: 'admin',
+        email: 'admin@kitchencraft.local',
         password: 'AdminPassword123!'
       })
     });
@@ -116,22 +116,8 @@ async function checkHealth() {
 }
 
 async function promoteToAdmin(username) {
-  log.step('Promotion en administrateur via SQL...');
-
-  try {
-    const { execSync } = await import('child_process');
-    
-    const sqlCommand = `UPDATE user_roles SET role_id = (SELECT id FROM roles WHERE name = 'ROLE_ADMIN') WHERE user_id = (SELECT id FROM users WHERE username = '${username}');`;
-    
-    execSync(`docker exec kitchencraft-db-dev psql -U postgres -d kitchencraft -c "${sqlCommand}"`, 
-      { stdio: 'inherit' });
-    
-    log.success('Promotion réussie via base de données');
-    return true;
-  } catch (error) {
-    log.error(`Erreur lors de la promotion: ${error.message}`);
-    return false;
-  }
+  log.info('Admin créé directement avec le bon rôle via /auth/register-admin');
+  return true;
 }
 
 async function initializeAdmin() {

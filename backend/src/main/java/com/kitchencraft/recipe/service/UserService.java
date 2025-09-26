@@ -24,9 +24,9 @@ public class UserService {
     
     public UserDto getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String email = authentication.getName(); // Maintenant getName() retourne l'email
         
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new BusinessException("User not found"));
         
         return userMapper.toDto(user);
@@ -35,9 +35,9 @@ public class UserService {
     @Transactional
     public UserDto updateProfile(UpdateProfileRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
+        String currentEmail = authentication.getName(); // Maintenant getName() retourne l'email
         
-        User user = userRepository.findByUsername(currentUsername)
+        User user = userRepository.findByEmail(currentEmail)
             .orElseThrow(() -> new BusinessException("User not found"));
         
         if (!user.getUsername().equals(request.getUsername()) && 
@@ -62,9 +62,9 @@ public class UserService {
     @Transactional
     public void changePassword(ChangePasswordRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String email = authentication.getName(); // Maintenant getName() retourne l'email
         
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new BusinessException("User not found"));
         
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
