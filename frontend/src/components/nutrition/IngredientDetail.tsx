@@ -89,18 +89,18 @@ export default function IngredientDetail({ isOpen, onClose, onEdit, onDelete, on
           </div>
           <div className="flex items-center space-x-2">
             {onEdit && (
-              <Button onClick={onEdit} variant="outline" className="text-white border-white hover:bg-white hover:text-emerald-600">
+              <Button onClick={onEdit} variant="secondary" className="text-white border-white hover:bg-white hover:text-emerald-600">
                 Modifier
               </Button>
             )}
             {onSync && ingredient?.barcode && (
-              <Button onClick={onSync} variant="outline" className="text-white border-orange-300 hover:bg-orange-500 hover:text-white">
+              <Button onClick={onSync} variant="secondary" className="text-white border-orange-300 hover:bg-orange-500 hover:text-white">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Resync
               </Button>
             )}
             {onDelete && (
-              <Button onClick={onDelete} variant="outline" className="text-white border-red-300 hover:bg-red-500 hover:text-white">
+              <Button onClick={onDelete} variant="secondary" className="text-white border-red-300 hover:bg-red-500 hover:text-white">
                 <Trash2 className="w-4 h-4 mr-2" />
                 Supprimer
               </Button>
@@ -237,7 +237,7 @@ export default function IngredientDetail({ isOpen, onClose, onEdit, onDelete, on
 
         {/* Footer */}
         <div className="flex justify-end p-4 border-t border-slate-200 bg-slate-50">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Fermer
           </Button>
         </div>

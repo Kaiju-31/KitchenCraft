@@ -41,15 +41,15 @@ export default function IngredientAutocomplete({
     ).slice(0, 8);
     
     // Vérifier s'il y a une correspondance exacte
-    const hasExactMatch = ingredients.some(ingredient =>
-      ingredient.name.toLowerCase() === inputValue.toLowerCase()
-    );
+    // const hasExactMatch = ingredients.some(ingredient =>
+    //   ingredient.name.toLowerCase() === inputValue.toLowerCase()
+    // );
     
     setSuggestions(filtered);
     
     // LOGIQUE SIMPLIFIÉE : Toujours afficher si >= 2 caractères ET pas d'ingrédient sélectionné
     const shouldShowDropdown = inputValue.length >= 2 && !isIngredientSelected;
-    const shouldShowCreateButton = inputValue.length >= 2 && onNewIngredientRequest;
+    const shouldShowCreateButton = inputValue.length >= 2 && !!onNewIngredientRequest;
     
     // console.log('IngredientAutocomplete useEffect:', {
     //   inputValue,

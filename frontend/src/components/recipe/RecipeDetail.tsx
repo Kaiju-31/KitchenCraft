@@ -57,7 +57,7 @@ export default function RecipeDetail({
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 w-full sm:w-auto">
           <Button
             onClick={handleExportPDF}
-            variant="outline"
+            variant="secondary"
             icon={FileDown}
             className="min-h-11 w-full sm:w-auto"
           >

@@ -356,7 +356,7 @@ const CreateUserModal: React.FC<CreateUserModalProps> = ({
           <div className="flex justify-end space-x-3 pt-4">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={handleClose}
               disabled={isSubmitting}
             >

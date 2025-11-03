@@ -206,7 +206,7 @@ export default function AdvancedIngredientForm({ isOpen, onClose, onSave, user, 
                   <div className="flex flex-col justify-end">
                     <Button
                       onClick={() => setShowScanner(true)}
-                      variant="outline"
+                      variant="secondary"
                       disabled={loading}
                       className="h-12 px-4"
                     >
@@ -745,7 +745,7 @@ export default function AdvancedIngredientForm({ isOpen, onClose, onSave, user, 
           {/* Footer */}
           <div className="flex justify-end space-x-3 p-6 border-t border-slate-200 bg-slate-50">
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={onClose}
               disabled={loading}
             >

@@ -148,7 +148,7 @@ export default function RecipeSearchByIngredients() {
       <div className="flex items-center gap-4">
         <Button
           onClick={() => navigate('/recipes')}
-          variant="outline"
+          variant="secondary"
           size="sm"
           icon={ArrowLeft}
         >
