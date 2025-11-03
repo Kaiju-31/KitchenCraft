@@ -198,7 +198,7 @@ export default function PlanningDetailPage() {
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <Button
-            variant="ghost"
+            variant="primary"
             onClick={handleBack}
             className="w-fit"
           >
@@ -209,7 +209,7 @@ export default function PlanningDetailPage() {
         
         <div className="flex flex-col sm:flex-row gap-2">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={handleExportPlanningPDF}
             disabled={planRecipes.length === 0}
             className="w-full sm:w-auto text-sm"
@@ -244,7 +244,7 @@ export default function PlanningDetailPage() {
       {/* Actions planning */}
       <div className="flex gap-2 justify-center sm:justify-start">
         <Button
-          variant="outline"
+          variant="secondary"
           onClick={handleCopy}
           className="flex items-center"
         >
@@ -315,7 +315,7 @@ export default function PlanningDetailPage() {
                       </div>
                       <Button
                         size="sm"
-                        variant="ghost"
+                        variant="primary"
                         onClick={() => removeRecipeFromPlan(planRecipe.id)}
                       >
                         <X className="w-4 h-4" />
@@ -336,7 +336,7 @@ export default function PlanningDetailPage() {
             <div className="flex gap-2">
               <Button 
                 onClick={handleExportShoppingListPDF}
-                variant="outline"
+                variant="secondary"
                 disabled={shoppingList.length === 0}
               >
                 <FileDown className="w-4 h-4 mr-2" />

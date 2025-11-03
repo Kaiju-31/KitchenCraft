@@ -41,7 +41,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     if (user) {
       setFormData({
         username: user.username,
-        email: user.email,
+        email: user.email || '',
         password: '',
       });
       setConfirmPassword('');
@@ -141,7 +141,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       if (user) {
         setFormData({
           username: user.username,
-          email: user.email,
+          email: user.email || '',
           password: '',
         });
       }
@@ -335,7 +335,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
           <div className="flex justify-end space-x-3 pt-4">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={handleClose}
               disabled={isSubmitting}
             >

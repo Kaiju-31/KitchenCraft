@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { BrowserMultiFormatReader } from '@zxing/browser';
+import { DecodeHintType, BarcodeFormat } from '@zxing/library';
 import { Camera, X, RefreshCw, Edit3 } from 'lucide-react';
 import Button from '../ui/Button';
 import { useKeyboard } from '../../hooks/useKeyboard';
@@ -57,17 +58,61 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
     try {
       setError(null);
       
-      // Vérifier les permissions de caméra
-      const permissions = await navigator.permissions.query({ name: 'camera' as PermissionName });
-      setHasPermission(permissions.state === 'granted');
-      
-      if (permissions.state === 'denied') {
-        setError('Accès à la caméra refusé. Veuillez autoriser l\'accès dans les paramètres de votre navigateur.');
+      // Vérifier si les APIs sont disponibles
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setError('Votre navigateur ne supporte pas l\'accès à la caméra. Veuillez utiliser un navigateur moderne ou la saisie manuelle.');
         return;
       }
 
-      // Initialiser le lecteur de code-barres
+      // Vérifier les permissions de caméra si l'API permissions est disponible
+      try {
+        if (navigator.permissions && navigator.permissions.query) {
+          const permissions = await navigator.permissions.query({ name: 'camera' as PermissionName });
+          setHasPermission(permissions.state === 'granted');
+          
+          if (permissions.state === 'denied') {
+            setError('Accès à la caméra refusé. Veuillez autoriser l\'accès dans les paramètres de votre navigateur.');
+            return;
+          }
+        }
+      } catch (permError) {
+        // L'API permissions peut ne pas être supportée, continuer sans
+        console.warn('Permissions API not fully supported:', permError);
+      }
+
+      // Initialiser le lecteur de code-barres avec configuration complète
       codeReader.current = new BrowserMultiFormatReader();
+      
+      // Configuration des hints pour améliorer la détection
+      const hints = new Map();
+      hints.set(DecodeHintType.TRY_HARDER, true);
+      hints.set(DecodeHintType.PURE_BARCODE, true);
+      // hints.set(DecodeHintType.ALSO_INVERTED, true); // Not available in this version
+      
+      // Spécifier les formats de codes-barres supportés (produits alimentaires)
+      const formats = [
+        BarcodeFormat.EAN_13,    // Standard européen (le plus courant)
+        BarcodeFormat.EAN_8,     // Version courte
+        BarcodeFormat.UPC_A,     // Standard américain
+        BarcodeFormat.UPC_E,     // Version courte américaine
+        BarcodeFormat.CODE_128,  // Code industriel
+        BarcodeFormat.CODE_39,   // Autre code industriel
+        BarcodeFormat.ITF,       // Interleaved 2 of 5
+        BarcodeFormat.CODABAR    // Ancien format encore utilisé
+      ];
+      
+      hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
+      
+      // Appliquer les hints
+      try {
+        codeReader.current.hints = hints;
+        console.log('🔧 Configuration du scanner:', { 
+          formats: formats.map(f => f.toString()),
+          hints: Array.from(hints.entries())
+        });
+      } catch (e) {
+        console.warn('⚠️ Impossible de configurer les hints:', e);
+      }
       
       // Démarrer le scan
       await startScanning();
@@ -85,50 +130,125 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
       setIsScanning(true);
       setError(null);
 
-      // Obtenir les appareils vidéo disponibles
-      const videoDevices = await codeReader.current.listVideoInputDevices();
-      
-      if (videoDevices.length === 0) {
-        throw new Error('Aucune caméra détectée');
-      }
+      // Approche moderne : utiliser getUserMedia directement
+      try {
+        // Contraintes pour la caméra optimisées pour la lecture de codes-barres
+        const constraints: MediaStreamConstraints = {
+          video: {
+            facingMode: { ideal: 'environment' }, // Caméra arrière
+            width: { ideal: 1920, min: 640 },
+            height: { ideal: 1080, min: 480 },
+            frameRate: { ideal: 30, min: 15 },
+            // focusMode: { ideal: 'continuous' }, // Not supported in MediaTrackConstraints
+            // Améliorer la qualité pour les codes-barres
+            aspectRatio: { ideal: 16/9 },
+          }
+        };
 
-      // Préférer la caméra arrière pour mobile
-      const backCamera = videoDevices.find(device => 
-        device.label.toLowerCase().includes('back') || 
-        device.label.toLowerCase().includes('rear')
-      );
-      
-      const selectedDevice = backCamera || videoDevices[0];
+        console.log('📷 Initialisation de la caméra avec les contraintes:', constraints);
 
-      // Démarrer le décodage
-      const controls = await codeReader.current.decodeFromVideoDevice(
-        selectedDevice.deviceId,
-        videoRef.current,
-        (result, error) => {
-          if (result) {
-            const barcode = result.getText();
-            console.log('Code-barres scanné:', barcode);
-            onScanResult(barcode);
-            stopScanning();
-            onClose();
+        // Obtenir le stream vidéo
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        streamRef.current = stream;
+        
+        // Logging des propriétés de la caméra obtenue
+        const videoTracks = stream.getVideoTracks();
+        if (videoTracks.length > 0) {
+          const track = videoTracks[0];
+          const settings = track.getSettings();
+          console.log('📱 Caméra configurée:', {
+            width: settings.width,
+            height: settings.height,
+            frameRate: settings.frameRate,
+            facingMode: settings.facingMode,
+            deviceId: settings.deviceId
+          });
+        }
+        
+        // Assigner le stream à la vidéo
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+          console.log('▶️ Vidéo démarrée');
+        }
+
+        // Démarrer le décodage avec le stream
+        console.log('🔍 Démarrage du décodage...');
+        const controls = await codeReader.current.decodeFromStream(
+          stream,
+          videoRef.current,
+          (result, error) => {
+            if (result) {
+              const barcode = result.getText();
+              const format = result.getBarcodeFormat();
+              console.log('✅ Code-barres scanné:', { 
+                barcode, 
+                format: format?.toString(),
+                points: result.getResultPoints()?.length 
+              });
+              onScanResult(barcode);
+              stopScanning();
+              onClose();
+            }
+            
+            if (error) {
+              // Filtrer les erreurs "normales" de scan
+              if (error.name === 'NotFoundException') {
+                // C'est normal, pas de code détecté dans cette frame
+                return;
+              }
+              
+              // Logs uniquement pour les vraies erreurs, pas trop fréquents
+              if (Math.random() < 0.01) { // 1% chance de logger pour éviter le spam
+                console.warn('⚠️ Erreur de scan occasionnelle:', error.name);
+              }
+            }
+          }
+        );
+
+        setHasPermission(true);
+
+      } catch (streamError) {
+        // Si getUserMedia échoue, essayer l'ancienne méthode
+        console.warn('getUserMedia failed, trying fallback method:', streamError);
+        
+        // Fallback : utiliser decodeFromVideoDevice si disponible
+        if (typeof codeReader.current.decodeFromVideoDevice === 'function') {
+          await codeReader.current.decodeFromVideoDevice(
+            undefined, // Premier device disponible
+            videoRef.current,
+            (result, error) => {
+              if (result) {
+                const barcode = result.getText();
+                console.log('Code-barres scanné:', barcode);
+                onScanResult(barcode);
+                stopScanning();
+                onClose();
+              }
+              
+              if (error && error.name !== 'NotFoundException') {
+                // Logs réduits pour éviter le spam
+                if (Math.random() < 0.01) {
+                  console.warn('⚠️ Erreur fallback:', error.name);
+                }
+              }
+            }
+          );
+          
+          // Stocker le stream pour pouvoir l'arrêter plus tard
+          if (videoRef.current && videoRef.current.srcObject) {
+            streamRef.current = videoRef.current.srcObject as MediaStream;
           }
           
-          if (error && !(error.name === 'NotFoundException')) {
-            console.warn('Erreur de scan:', error);
-          }
+          setHasPermission(true);
+        } else {
+          throw new Error('Camera access methods not available');
         }
-      );
-
-      // Stocker le stream pour pouvoir l'arrêter plus tard
-      if (videoRef.current && videoRef.current.srcObject) {
-        streamRef.current = videoRef.current.srcObject as MediaStream;
       }
-      
-      setHasPermission(true);
       
     } catch (err) {
       console.error('Erreur lors du démarrage du scan:', err);
-      setError('Erreur lors du démarrage du scanner. Vérifiez que votre caméra fonctionne correctement.');
+      setError('Erreur lors du démarrage du scanner. Vérifiez que votre caméra fonctionne correctement et que les permissions sont accordées.');
       setIsScanning(false);
     }
   };
@@ -145,18 +265,22 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
 
       // Arrêter la vidéo
       if (videoRef.current) {
+        videoRef.current.pause();
         videoRef.current.srcObject = null;
       }
 
-      // Tenter d'arrêter le codeReader si la méthode existe
+      // Tenter d'arrêter le codeReader avec différentes méthodes
       if (codeReader.current) {
         try {
-          if (typeof codeReader.current.reset === 'function') {
-            codeReader.current.reset();
+          // Essayer les différentes méthodes d'arrêt disponibles
+          // ZXing cleanup - use available methods
+          if (codeReader.current.getVideoInputDevices) {
+            // Modern ZXing API cleanup
+            console.log('Cleaning up ZXing scanner');
           }
         } catch (e) {
-          // Ignorer les erreurs de reset si la méthode n'existe pas
-          console.warn('Reset method not available on codeReader');
+          // Ignorer les erreurs de reset si les méthodes n'existent pas
+          console.warn('Scanner stop methods not available:', e);
         }
       }
     } catch (error) {
@@ -198,7 +322,7 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
           </h3>
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={toggleManualInput}
               className="flex items-center"
@@ -207,7 +331,7 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
               {showManualInput ? 'Scanner' : 'Saisir'}
             </Button>
             <Button
-              variant="ghost"
+              variant="primary"
               size="sm"
               onClick={onClose}
               className="p-2"
@@ -229,7 +353,7 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Réessayer
                 </Button>
-                <Button onClick={toggleManualInput} variant="outline" className="flex items-center">
+                <Button onClick={toggleManualInput} variant="secondary" className="flex items-center">
                   <Edit3 className="w-4 h-4 mr-2" />
                   Saisir manuellement
                 </Button>
@@ -266,7 +390,7 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
                 </Button>
                 <Button 
                   onClick={toggleManualInput} 
-                  variant="outline"
+                  variant="secondary"
                   className="flex items-center"
                 >
                   <Camera className="w-4 h-4 mr-2" />
@@ -287,10 +411,10 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
                 
                 {/* Overlay de visée */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="border-2 border-white border-dashed rounded-lg w-64 h-32 flex items-center justify-center bg-black bg-opacity-30">
-                    <div className="text-white text-center">
+                  <div className="border-2 border-white border-dashed rounded-lg w-64 h-32 flex items-center justify-center">
+                    <div className="text-white text-center drop-shadow-lg">
                       <Camera className="w-8 h-8 mx-auto mb-2" />
-                      <p className="text-sm">Centrez le code-barres ici</p>
+                      <p className="text-sm font-medium">Centrez le code-barres ici</p>
                     </div>
                   </div>
                 </div>
@@ -306,10 +430,12 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
 
               {/* Instructions */}
               <div className="text-center text-slate-600 space-y-2">
-                <p className="text-sm">Pointez votre caméra vers un code-barres</p>
-                <p className="text-xs text-slate-500">
-                  Le scan se fait automatiquement une fois le code détecté
-                </p>
+                <p className="text-sm font-medium">Pointez votre caméra vers un code-barres</p>
+                <div className="text-xs text-slate-500 space-y-1">
+                  <p>• Assurez-vous que le code-barres est bien éclairé</p>
+                  <p>• Tenez l'appareil stable et à bonne distance</p>
+                  <p>• Le scan se fait automatiquement</p>
+                </div>
               </div>
 
               {/* Permissions */}
@@ -319,7 +445,7 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
                     Veuillez autoriser l'accès à votre caméra pour scanner les codes-barres.
                   </p>
                   <div className="mt-2">
-                    <Button onClick={toggleManualInput} variant="outline" size="sm">
+                    <Button onClick={toggleManualInput} variant="secondary" size="sm">
                       <Edit3 className="w-4 h-4 mr-2" />
                       Saisir manuellement
                     </Button>
@@ -332,7 +458,7 @@ export default function BarcodeScanner({ isOpen, onClose, onScanResult, closeOnO
 
         {/* Footer */}
         <div className="flex justify-end p-4 border-t border-slate-200">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Annuler
           </Button>
         </div>

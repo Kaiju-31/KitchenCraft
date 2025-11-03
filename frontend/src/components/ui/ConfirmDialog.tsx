@@ -89,7 +89,7 @@ export default function ConfirmDialog({
         <div className="flex flex-col sm:flex-row gap-3 p-6 pt-0">
           <Button
             onClick={onClose}
-            variant="outline"
+            variant="secondary"
             fullWidth
             disabled={disabled}
             className="order-2 sm:order-1"

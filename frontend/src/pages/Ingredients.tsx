@@ -436,7 +436,7 @@ export default function IngredientsPage() {
             <div className="flex gap-2 sm:gap-3">
               <Button
                 onClick={() => setShowFilters(!showFilters)}
-                variant="outline"
+                variant="secondary"
                 size="lg"
                 icon={Filter}
                 className={`h-12 transition-all duration-300 ${

@@ -117,18 +117,18 @@ export default function RecipeDetailModal({
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button onClick={handleExportPDF} variant="outline" className="text-white border-white hover:bg-white hover:text-purple-600">
+            <Button onClick={handleExportPDF} variant="secondary" className="text-white border-white hover:bg-white hover:text-purple-600">
               <FileDown className="w-4 h-4 mr-2" />
               Export PDF
             </Button>
             {onEdit && (
-              <Button onClick={onEdit} variant="outline" className="text-white border-white hover:bg-white hover:text-purple-600">
+              <Button onClick={onEdit} variant="secondary" className="text-white border-white hover:bg-white hover:text-purple-600">
                 <Edit className="w-4 h-4 mr-2" />
                 Modifier
               </Button>
             )}
             {onDelete && (
-              <Button onClick={onDelete} variant="outline" className="text-white border-red-300 hover:bg-red-500 hover:text-white">
+              <Button onClick={onDelete} variant="secondary" className="text-white border-red-300 hover:bg-red-500 hover:text-white">
                 <Trash2 className="w-4 h-4 mr-2" />
                 Supprimer
               </Button>
@@ -540,7 +540,7 @@ export default function RecipeDetailModal({
 
         {/* Footer */}
         <div className="flex justify-end p-4 border-t border-slate-200 bg-slate-50">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Fermer
           </Button>
         </div>

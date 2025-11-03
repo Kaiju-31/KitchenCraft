@@ -140,7 +140,7 @@ export default function PlanForm({
         <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
           <Button
             type="button"
-            variant="ghost"
+            variant="primary"
             onClick={onClose}
             disabled={isSubmitting}
           >

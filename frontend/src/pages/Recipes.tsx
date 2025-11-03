@@ -590,7 +590,7 @@ export default function Recipes() {
           {hasActiveFilters() && (
             <Button
               onClick={handleResetFilters}
-              variant="outline"
+              variant="secondary"
               icon={RotateCcw}
               disabled={loading}
               className="min-h-10 xs:min-h-11 sm:min-h-12 w-full xs:w-auto text-sm xs:text-base"
