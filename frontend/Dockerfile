@@ -19,7 +19,7 @@ COPY . .
 RUN npm run build:docker
 
 # Stage 2: Nginx production server
-FROM nginx:1.26-alpine
+FROM nginx:1.29.2-alpine
 
 # Install curl for health checks
 RUN apk --no-cache add curl
